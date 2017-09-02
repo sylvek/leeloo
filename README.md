@@ -1,0 +1,2 @@
+# leeloo
+collaborative password manager
