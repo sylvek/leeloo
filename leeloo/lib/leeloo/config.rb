@@ -6,7 +6,7 @@ module Leeloo
 
     PATH = "#{Dir.home}/.leeloo"
 
-    @@keystores
+    @@keystores = []
 
     def self.init
       Keystore::add_keystore "private", "#{PATH}/private"
