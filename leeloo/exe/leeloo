@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+if RUBY_VERSION < '2.0.0'
+  abort "leeloo requires Ruby 2.0.0 or higher"
+end
+
+$LOAD_PATH.push File.expand_path("../../lib", __FILE__)
+
+require "leeloo"
+Leeloo.start
