@@ -68,6 +68,8 @@ module Leeloo
         c.option '--stdin', nil, 'secret given by stdin pipe'
 
         c.action do |args, options|
+          abort "name or path are missing" unless args.length == 1
+
           options.default :keystore => 'private'
           keystore = Config.get_keystore(options.keystore)
 
@@ -91,6 +93,8 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
+          abort "name or path are missing" unless args.length == 1
+
           options.default :keystore => 'private'
           keystore = Config.get_keystore(options.keystore)
 
