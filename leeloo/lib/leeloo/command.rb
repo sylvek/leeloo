@@ -89,7 +89,7 @@ module Leeloo
       end
 
       command :"read secret" do |c|
-        c.syntax      = 'leeloo read secret <keystore> <name>'
+        c.syntax      = 'leeloo read secret <name>'
         c.description = "read a secret from a keystore (private by default)"
         c.option '--keystore STRING', String, 'a selected keystore'
 
