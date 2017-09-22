@@ -69,6 +69,7 @@ module Leeloo
 
         c.action do |args, options|
           abort "name or path are missing" unless args.length == 1
+          name = args.first
 
           options.default :keystore => 'private'
           keystore = Config.get_keystore(options.keystore)
@@ -83,7 +84,7 @@ module Leeloo
               abort "not the same secret" unless secret == confirm
           end
 
-          Secret.add_secret options.keystore, args.first, secret
+          Secret.add_secret keystore, name, secret
         end
       end
 
@@ -94,11 +95,12 @@ module Leeloo
 
         c.action do |args, options|
           abort "name or path are missing" unless args.length == 1
+          name = args.first
 
           options.default :keystore => 'private'
           keystore = Config.get_keystore(options.keystore)
 
-          Secret.read_secret options.keystore, args.first
+          Secret.read_secret keystore, name
         end
       end
     end
