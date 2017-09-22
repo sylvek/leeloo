@@ -9,6 +9,9 @@ module Leeloo
     @@keystores = []
 
     def self.init
+      unless Keystore::secret_key_exists?
+        abort "a secret key PGP is mandatory"
+      end
       Keystore::add_keystore "private", "#{PATH}/private"
       Config::add_keystore "private", "#{PATH}/private"
       say "Initialization completed"

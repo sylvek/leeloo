@@ -1,4 +1,5 @@
 require 'commander/import'
+require 'securerandom'
 
 module Leeloo
   class Command
@@ -36,12 +37,13 @@ module Leeloo
       end
 
       command :"list secret" do |c|
-        c.syntax      = 'leeloo list secret <keystore>'
-        c.description = "Display secrets list"
-        c.action do |args, options|
-          abort "keytore is missing" unless args.length == 1
+        c.syntax      = 'leeloo list secret [options]'
+        c.description = "Display secrets list of keystore (private by default)"
+        c.option '--keystore STRING', String, 'a selected keystore'
 
-          Secret::list Config.get_keystore(args.first)
+        c.action do |args, options|
+          options.default :keystore => 'private'
+          Secret::list Config.get_keystore(options.keystore)
         end
       end
 
@@ -59,31 +61,40 @@ module Leeloo
       end
 
       command :"add secret" do |c|
-        c.syntax      = 'leeloo add secret <keystore> <name>'
-        c.description = "add a new secret in a keystore"
+        c.syntax      = 'leeloo add secret <name>'
+        c.description = "add a new secret in a keystore (private by default)"
+        c.option '--keystore STRING', String, 'a selected keystore'
+        c.option '--generate INTEGER', Integer, 'a number of randomized characters'
+        c.option '--stdin', nil, 'secret given by stdin pipe'
 
         c.action do |args, options|
-          keystore = Config.get_keystore(args.first)
+          options.default :keystore => 'private'
+          keystore = Config.get_keystore(options.keystore)
 
-          abort "keytore or name are missing" unless args.length == 2
-          secret  = password "secret"
-          confirm = password "confirm it"
-          abort "not the same secret" unless secret == confirm
+          secret = nil
+          secret = STDIN.read if options.stdin
+          secret = SecureRandom.base64(options.generate) if options.generate
 
-          Secret.add_secret keystore, args.last, secret
+          unless secret
+              secret  = password "secret"
+              confirm = password "confirm it"
+              abort "not the same secret" unless secret == confirm
+          end
+
+          Secret.add_secret options.keystore, args.first, secret
         end
       end
 
       command :"read secret" do |c|
         c.syntax      = 'leeloo read secret <keystore> <name>'
-        c.description = "read a secret from a keystore"
+        c.description = "read a secret from a keystore (private by default)"
+        c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
-          keystore = Config.get_keystore(args.first)
+          options.default :keystore => 'private'
+          keystore = Config.get_keystore(options.keystore)
 
-          abort "keytore or name are missing" unless args.length == 2
-
-          Secret.read_secret keystore, args.last
+          Secret.read_secret options.keystore, args.first
         end
       end
     end
