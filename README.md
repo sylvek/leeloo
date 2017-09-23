@@ -55,7 +55,7 @@ $> leeloo add secret my_secret --keystore password-store
 $> leeloo read secret my_secret
 # display it
 
-$> leeloo sync secrets
+$> leeloo sync secret
 # will (re)crypt all secrets with the new given keys (from keys directory)
 ```
 

@@ -14,7 +14,6 @@ module Leeloo
       end
       Keystore::add_keystore "private", "#{PATH}/private"
       Config::add_keystore "private", "#{PATH}/private"
-      say "Initialization completed"
     end
 
     def self.list_keystores

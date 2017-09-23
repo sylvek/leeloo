@@ -1,5 +1,6 @@
 require 'commander/import'
 require 'securerandom'
+require 'clipboard'
 
 module Leeloo
   class Command
@@ -16,7 +17,7 @@ module Leeloo
       program :help, 'GitHub', 'https://github.com/sylvek'
       program :help_formatter, :compact
 
-      default_command :list
+      default_command :"list keystore"
 
       command :"init" do |c|
         c.syntax      = 'leeloo init'
@@ -24,10 +25,11 @@ module Leeloo
         c.action do |args, options|
 
           Config::init
+          say "Initialization completed"
         end
       end
 
-      command :"list" do |c|
+      command :"list keystore" do |c|
         c.syntax      = 'leeloo list'
         c.description = "Display keystores list"
         c.action do |args, options|
@@ -46,6 +48,7 @@ module Leeloo
           Secret::list Config.get_keystore(options.keystore)
         end
       end
+      alias_command :list, :"list secret"
 
       command :"add keystore" do |c|
         c.syntax      = 'leeloo add keystore <name> <path>'
@@ -59,10 +62,11 @@ module Leeloo
 
           Keystore.add_keystore name, keystore
           Config.add_keystore name, keystore
+          say "keystore #{name} added"
         end
       end
 
-      command :"sync secrets" do |c|
+      command :"sync secret" do |c|
         c.syntax      = 'leeloo recrypt secrets'
         c.description = "(re)sync all secrets from a given keystore (private by default)"
         c.option '--keystore STRING', String, 'a selected keystore'
@@ -70,8 +74,10 @@ module Leeloo
         c.action do |args, options|
           options.default :keystore => 'private'
           Secret.sync_secrets Config.get_keystore(options.keystore)
+          say "keystore synced successfully"
         end
       end
+      alias_command :sync, :"sync secret"
 
       command :"add secret" do |c|
         c.syntax      = 'leeloo add secret <name>'
@@ -79,6 +85,7 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
         c.option '--generate INTEGER', Integer, 'a number of randomized characters'
         c.option '--stdin', nil, 'secret given by stdin pipe'
+        c.option '--clipboard', nil, 'copy to clipboard'
 
         c.action do |args, options|
           abort "name is missing" unless args.length == 1
@@ -98,13 +105,18 @@ module Leeloo
           end
 
           Secret.add_secret keystore, name, secret
+          say "#{name} added successfully"
+          Clipboard.copy secret if options.clipboard
         end
       end
+      alias_command :add, :"add secret"
+      alias_command :insert, :"add secret"
 
       command :"read secret" do |c|
         c.syntax      = 'leeloo read secret <name>'
         c.description = "Display a secret from a keystore (private by default)"
         c.option '--keystore STRING', String, 'a selected keystore'
+        c.option '--clipboard', nil, 'copy to clipboard'
 
         c.action do |args, options|
           abort "name is missing" unless args.length == 1
@@ -113,8 +125,12 @@ module Leeloo
           options.default :keystore => 'private'
           keystore = Config.get_keystore(options.keystore)
 
-          Secret.read_secret keystore, name
+          secret = Secret.read_secret keystore, name
+          say secret unless options.clipboard
+          Clipboard.copy secret if options.clipboard
         end
+        alias_command :read, :"read secret"
+        alias_command :get, :"read secret"
       end
     end
   end
