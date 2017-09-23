@@ -1,4 +1,5 @@
 require 'commander/import'
+require 'securerandom'
 
 module Leeloo
   class Command
@@ -36,54 +37,83 @@ module Leeloo
       end
 
       command :"list secret" do |c|
-        c.syntax      = 'leeloo list secret <keystore>'
-        c.description = "Display secrets list"
-        c.action do |args, options|
-          abort "keytore is missing" unless args.length == 1
+        c.syntax      = 'leeloo list secret [options]'
+        c.description = "Display secrets list of keystore (private by default)"
+        c.option '--keystore STRING', String, 'a selected keystore'
 
-          Secret::list Config.get_keystore(args.first)
+        c.action do |args, options|
+          options.default :keystore => 'private'
+          Secret::list Config.get_keystore(options.keystore)
         end
       end
 
       command :"add keystore" do |c|
         c.syntax      = 'leeloo add keystore <name> <path>'
-        c.description = "add a new keystore"
+        c.description = "Add a new keystore"
 
         c.action do |args, options|
 
           abort "name or path are missing" unless args.length == 2
+          name = args.first
+          keystore = args.last
 
-          Keystore.add_keystore args.first, args.last
-          Config.add_keystore args.first, args.last
+          Keystore.add_keystore name, keystore
+          Config.add_keystore name, keystore
+        end
+      end
+
+      command :"sync secrets" do |c|
+        c.syntax      = 'leeloo recrypt secrets'
+        c.description = "(re)sync all secrets from a given keystore (private by default)"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          options.default :keystore => 'private'
+          Secret.sync_secrets Config.get_keystore(options.keystore)
         end
       end
 
       command :"add secret" do |c|
-        c.syntax      = 'leeloo add secret <keystore> <name>'
-        c.description = "add a new secret in a keystore"
+        c.syntax      = 'leeloo add secret <name>'
+        c.description = "Add a new secret in a keystore (private by default)"
+        c.option '--keystore STRING', String, 'a selected keystore'
+        c.option '--generate INTEGER', Integer, 'a number of randomized characters'
+        c.option '--stdin', nil, 'secret given by stdin pipe'
 
         c.action do |args, options|
-          keystore = Config.get_keystore(args.first)
+          abort "name is missing" unless args.length == 1
+          name = args.first
 
-          abort "keytore or name are missing" unless args.length == 2
-          secret  = password "secret"
-          confirm = password "confirm it"
-          abort "not the same secret" unless secret == confirm
+          options.default :keystore => 'private'
+          keystore = Config.get_keystore(options.keystore)
 
-          Secret.add_secret keystore, args.last, secret
+          secret = nil
+          secret = STDIN.read if options.stdin
+          secret = SecureRandom.base64(options.generate) if options.generate
+
+          unless secret
+              secret  = password "secret"
+              confirm = password "confirm it"
+              abort "not the same secret" unless secret == confirm
+          end
+
+          Secret.add_secret keystore, name, secret
         end
       end
 
       command :"read secret" do |c|
-        c.syntax      = 'leeloo read secret <keystore> <name>'
-        c.description = "read a secret from a keystore"
+        c.syntax      = 'leeloo read secret <name>'
+        c.description = "Display a secret from a keystore (private by default)"
+        c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
-          keystore = Config.get_keystore(args.first)
+          abort "name is missing" unless args.length == 1
+          name = args.first
 
-          abort "keytore or name are missing" unless args.length == 2
+          options.default :keystore => 'private'
+          keystore = Config.get_keystore(options.keystore)
 
-          Secret.read_secret keystore, args.last
+          Secret.read_secret keystore, name
         end
       end
     end

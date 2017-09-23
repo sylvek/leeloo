@@ -5,6 +5,10 @@ require 'git'
 module Leeloo
   class Keystore
 
+    def self.secret_key_exists?
+      GPGME::Key.find(:secret, nil, ).empty?
+    end
+
     def self.add_keystore name, path
       FileUtils.mkdir_p path
       FileUtils.mkdir_p "#{path}/secrets/"
