@@ -49,7 +49,7 @@ module Leeloo
 
       command :"add keystore" do |c|
         c.syntax      = 'leeloo add keystore <name> <path>'
-        c.description = "add a new keystore"
+        c.description = "Add a new keystore"
 
         c.action do |args, options|
 
@@ -64,7 +64,7 @@ module Leeloo
 
       command :"sync secrets" do |c|
         c.syntax      = 'leeloo recrypt secrets'
-        c.description = "(re)crypt all secrets from a given keystore (private by default)"
+        c.description = "(re)sync all secrets from a given keystore (private by default)"
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
@@ -75,7 +75,7 @@ module Leeloo
 
       command :"add secret" do |c|
         c.syntax      = 'leeloo add secret <name>'
-        c.description = "add a new secret in a keystore (private by default)"
+        c.description = "Add a new secret in a keystore (private by default)"
         c.option '--keystore STRING', String, 'a selected keystore'
         c.option '--generate INTEGER', Integer, 'a number of randomized characters'
         c.option '--stdin', nil, 'secret given by stdin pipe'
@@ -103,7 +103,7 @@ module Leeloo
 
       command :"read secret" do |c|
         c.syntax      = 'leeloo read secret <name>'
-        c.description = "read a secret from a keystore (private by default)"
+        c.description = "Display a secret from a keystore (private by default)"
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
