@@ -1,5 +1,6 @@
 require 'commander/import'
 require 'securerandom'
+require 'clipboard'
 
 module Leeloo
   class Command
@@ -24,6 +25,7 @@ module Leeloo
         c.action do |args, options|
 
           Config::init
+          say "Initialization completed"
         end
       end
 
@@ -59,6 +61,7 @@ module Leeloo
 
           Keystore.add_keystore name, keystore
           Config.add_keystore name, keystore
+          say "keystore #{name} added"
         end
       end
 
@@ -70,6 +73,7 @@ module Leeloo
         c.action do |args, options|
           options.default :keystore => 'private'
           Secret.sync_secrets Config.get_keystore(options.keystore)
+          say "keystore synced successfully"
         end
       end
 
@@ -98,6 +102,7 @@ module Leeloo
           end
 
           Secret.add_secret keystore, name, secret
+          say "#{name} added successfully"
         end
       end
 
@@ -105,6 +110,7 @@ module Leeloo
         c.syntax      = 'leeloo read secret <name>'
         c.description = "Display a secret from a keystore (private by default)"
         c.option '--keystore STRING', String, 'a selected keystore'
+        c.option '--clipboard', nil, 'copy to clipboard'
 
         c.action do |args, options|
           abort "name is missing" unless args.length == 1
@@ -113,7 +119,9 @@ module Leeloo
           options.default :keystore => 'private'
           keystore = Config.get_keystore(options.keystore)
 
-          Secret.read_secret keystore, name
+          secret = Secret.read_secret keystore, name
+          say secret unless options.clipboard
+          Clipboard.copy secret if options.clipboard
         end
       end
     end

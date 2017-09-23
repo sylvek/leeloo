@@ -24,13 +24,11 @@ module Leeloo
       g = Git.open keystore
       g.add "#{keystore}/secrets/#{name}"
       g.commit "secret #{name} added"
-
-      say "#{name} added successfully"
     end
 
     def self.read_secret(keystore, name)
       crypto = GPGME::Crypto.new
-      say crypto.decrypt File.open("#{keystore}/secrets/#{name}")
+      crypto.decrypt File.open("#{keystore}/secrets/#{name}")
     end
 
     def self.sync_secrets keystore
@@ -56,8 +54,6 @@ module Leeloo
       end
 
       g.commit "sync"
-
-      say "keystore synced successfully"
     end
 
     def self.find_secrets path

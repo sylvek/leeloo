@@ -21,8 +21,6 @@ module Leeloo
       g = Git.init path
       g.add
       g.commit "keystore #{path} added"
-
-      say "keystore #{name} added"
     end
 
   end
