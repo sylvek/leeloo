@@ -17,7 +17,7 @@ module Leeloo
       program :help, 'GitHub', 'https://github.com/sylvek'
       program :help_formatter, :compact
 
-      default_command :list
+      default_command :"list keystore"
 
       command :"init" do |c|
         c.syntax      = 'leeloo init'
@@ -29,7 +29,7 @@ module Leeloo
         end
       end
 
-      command :"list" do |c|
+      command :"list keystore" do |c|
         c.syntax      = 'leeloo list'
         c.description = "Display keystores list"
         c.action do |args, options|
@@ -38,7 +38,7 @@ module Leeloo
         end
       end
 
-      command :"list secret" do |c|
+      command :"list" do |c|
         c.syntax      = 'leeloo list secret [options]'
         c.description = "Display secrets list of keystore (private by default)"
         c.option '--keystore STRING', String, 'a selected keystore'
@@ -65,7 +65,7 @@ module Leeloo
         end
       end
 
-      command :"sync secret" do |c|
+      command :"sync" do |c|
         c.syntax      = 'leeloo recrypt secrets'
         c.description = "(re)sync all secrets from a given keystore (private by default)"
         c.option '--keystore STRING', String, 'a selected keystore'
@@ -77,7 +77,7 @@ module Leeloo
         end
       end
 
-      command :"add secret" do |c|
+      command :"add" do |c|
         c.syntax      = 'leeloo add secret <name>'
         c.description = "Add a new secret in a keystore (private by default)"
         c.option '--keystore STRING', String, 'a selected keystore'
@@ -108,7 +108,7 @@ module Leeloo
         end
       end
 
-      command :"read secret" do |c|
+      command :"read" do |c|
         c.syntax      = 'leeloo read secret <name>'
         c.description = "Display a secret from a keystore (private by default)"
         c.option '--keystore STRING', String, 'a selected keystore'
