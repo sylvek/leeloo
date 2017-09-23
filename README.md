@@ -1,6 +1,5 @@
-# leeloo
+# leeloo [![Gem Version](https://badge.fury.io/rb/leeloo.svg)](https://badge.fury.io/rb/leeloo)
 collaborative password manager
-[![Gem Version](https://badge.fury.io/rb/leeloo.svg)](https://badge.fury.io/rb/leeloo)
 
 ![multi pass](https://media.giphy.com/media/dVneNbpJiD2AU/giphy.gif)
 
