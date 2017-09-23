@@ -83,6 +83,7 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
         c.option '--generate INTEGER', Integer, 'a number of randomized characters'
         c.option '--stdin', nil, 'secret given by stdin pipe'
+        c.option '--clipboard', nil, 'copy to clipboard'
 
         c.action do |args, options|
           abort "name is missing" unless args.length == 1
@@ -103,6 +104,7 @@ module Leeloo
 
           Secret.add_secret keystore, name, secret
           say "#{name} added successfully"
+          Clipboard.copy secret if options.clipboard
         end
       end
 
