@@ -40,11 +40,23 @@ drwx------  35 sylvek  staff   1,2K  4 sep 20:38 Personal
 drwxr-xr-x   3 sylvek  staff   102B  4 sep 23:04 keys
 lrwxr-xr-x   1 sylvek  staff     8B  4 sep 20:38 secrets -> Personal
 
-$> leeloo add secret private my_secret
+$> leeloo add secret my_secret
 # will add a secret
 
-$> leeloo read secret private my_secret
+$> leeloo add secret my_secret --generate 5
+# will add a randomized secret
+
+$> echo "my secret" | leeloo add secret my_secret --stdin
+# will add a secret from STDIN
+
+$> leeloo add secret my_secret --keystore password-store
+# will add a secret to "password-store"
+
+$> leeloo read secret my_secret
 # display it
+
+$> leeloo sync secrets
+# will (re)crypt all secrets with the new given keys (from keys directory)
 ```
 
 ## How to share a keystore ?
