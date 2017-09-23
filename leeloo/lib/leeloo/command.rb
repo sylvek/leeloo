@@ -54,9 +54,22 @@ module Leeloo
         c.action do |args, options|
 
           abort "name or path are missing" unless args.length == 2
+          name = args.first
+          keystore = args.last
 
-          Keystore.add_keystore args.first, args.last
-          Config.add_keystore args.first, args.last
+          Keystore.add_keystore name, keystore
+          Config.add_keystore name, keystore
+        end
+      end
+
+      command :"sync secrets" do |c|
+        c.syntax      = 'leeloo recrypt secrets'
+        c.description = "(re)crypt all secrets from a given keystore (private by default)"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          options.default :keystore => 'private'
+          Secret.sync_secrets Config.get_keystore(options.keystore)
         end
       end
 
@@ -68,7 +81,7 @@ module Leeloo
         c.option '--stdin', nil, 'secret given by stdin pipe'
 
         c.action do |args, options|
-          abort "name or path are missing" unless args.length == 1
+          abort "name is missing" unless args.length == 1
           name = args.first
 
           options.default :keystore => 'private'
@@ -94,7 +107,7 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
-          abort "name or path are missing" unless args.length == 1
+          abort "name is missing" unless args.length == 1
           name = args.first
 
           options.default :keystore => 'private'
