@@ -62,7 +62,7 @@ module Leeloo
         end
       end
 
-      command :"sync secrets" do |c|
+      command :"sync secret" do |c|
         c.syntax      = 'leeloo recrypt secrets'
         c.description = "(re)sync all secrets from a given keystore (private by default)"
         c.option '--keystore STRING', String, 'a selected keystore'
