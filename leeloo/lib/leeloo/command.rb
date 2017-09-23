@@ -38,7 +38,7 @@ module Leeloo
         end
       end
 
-      command :"list" do |c|
+      command :"list secret" do |c|
         c.syntax      = 'leeloo list secret [options]'
         c.description = "Display secrets list of keystore (private by default)"
         c.option '--keystore STRING', String, 'a selected keystore'
@@ -48,6 +48,7 @@ module Leeloo
           Secret::list Config.get_keystore(options.keystore)
         end
       end
+      alias_command :list, :"list secret"
 
       command :"add keystore" do |c|
         c.syntax      = 'leeloo add keystore <name> <path>'
@@ -65,7 +66,7 @@ module Leeloo
         end
       end
 
-      command :"sync" do |c|
+      command :"sync secret" do |c|
         c.syntax      = 'leeloo recrypt secrets'
         c.description = "(re)sync all secrets from a given keystore (private by default)"
         c.option '--keystore STRING', String, 'a selected keystore'
@@ -76,8 +77,9 @@ module Leeloo
           say "keystore synced successfully"
         end
       end
+      alias_command :sync, :"sync secret"
 
-      command :"add" do |c|
+      command :"add secret" do |c|
         c.syntax      = 'leeloo add secret <name>'
         c.description = "Add a new secret in a keystore (private by default)"
         c.option '--keystore STRING', String, 'a selected keystore'
@@ -107,8 +109,10 @@ module Leeloo
           Clipboard.copy secret if options.clipboard
         end
       end
+      alias_command :add, :"add secret"
+      alias_command :insert, :"add secret"
 
-      command :"read" do |c|
+      command :"read secret" do |c|
         c.syntax      = 'leeloo read secret <name>'
         c.description = "Display a secret from a keystore (private by default)"
         c.option '--keystore STRING', String, 'a selected keystore'
@@ -125,6 +129,8 @@ module Leeloo
           say secret unless options.clipboard
           Clipboard.copy secret if options.clipboard
         end
+        alias_command :read, :"read secret"
+        alias_command :get, :"read secret"
       end
     end
   end
