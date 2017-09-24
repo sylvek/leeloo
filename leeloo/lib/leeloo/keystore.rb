@@ -5,7 +5,7 @@ require 'git'
 module Leeloo
   class Keystore
 
-    def self.secret_key_exists?
+    def self.secret_key_empty?
       GPGME::Key.find(:secret, nil, ).empty?
     end
 

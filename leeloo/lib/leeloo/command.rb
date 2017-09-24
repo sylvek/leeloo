@@ -23,7 +23,7 @@ module Leeloo
         c.syntax      = 'leeloo init'
         c.description = "Initialize leeloo and private keystore"
         c.action do |args, options|
-
+          abort("a secret key PGP is mandatory") if Keystore::secret_key_empty?
           Config::init
           say "Initialization completed"
         end
