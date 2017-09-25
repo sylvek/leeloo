@@ -132,6 +132,25 @@ module Leeloo
         alias_command :read, :"read secret"
         alias_command :get, :"read secret"
       end
+
+      command :"remove secret" do |c|
+        c.syntax      = 'leeloo remove secret <name>'
+        c.description = "Remove a secret from a keystore (private by default)"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          abort "name is missing" unless args.length == 1
+          name = args.first
+
+          options.default :keystore => 'private'
+          keystore = Config.get_keystore(options.keystore)
+
+          Secret.remove_secret keystore, name
+          say "#{name} removed successfully"
+        end
+        alias_command :delete, :"remove secret"
+        alias_command :erase, :"remove secret"
+      end
     end
   end
 end

@@ -31,6 +31,12 @@ module Leeloo
       crypto.decrypt File.open("#{keystore}/secrets/#{name}")
     end
 
+    def self.delete_secret(keystore, name)
+      g = Git.open keystore
+      g.remove "#{keystore}/secrets/#{name}"
+      g.commit "secret #{name} removed"
+    end
+
     def self.sync_secrets keystore
 
       g = Git.open keystore
