@@ -40,11 +40,11 @@ module Leeloo
 
       command :"list secret" do |c|
         c.syntax      = 'leeloo list secret [options]'
-        c.description = "Display secrets list of keystore (private by default)"
+        c.description = "Display secrets list of keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
-          options.default :keystore => 'private'
+          options.default :keystore => Config.default['keystore']
           Secret::list Config.get_keystore(options.keystore)
         end
       end
@@ -68,11 +68,11 @@ module Leeloo
 
       command :"sync secret" do |c|
         c.syntax      = 'leeloo recrypt secrets'
-        c.description = "(re)sync all secrets from a given keystore (private by default)"
+        c.description = "(re)sync all secrets from a given keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
-          options.default :keystore => 'private'
+          options.default :keystore => Config.default['keystore']
           Secret.sync_secrets Config.get_keystore(options.keystore)
           say "keystore synced successfully"
         end
@@ -81,7 +81,7 @@ module Leeloo
 
       command :"add secret" do |c|
         c.syntax      = 'leeloo add secret <name>'
-        c.description = "Add a new secret in a keystore (private by default)"
+        c.description = "Add a new secret in a keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
         c.option '--generate INTEGER', Integer, 'a number of randomized characters'
         c.option '--stdin', nil, 'secret given by stdin pipe'
@@ -91,7 +91,7 @@ module Leeloo
           abort "name is missing" unless args.length == 1
           name = args.first
 
-          options.default :keystore => 'private'
+          options.default :keystore => Config.default['keystore']
           keystore = Config.get_keystore(options.keystore)
 
           secret = nil
@@ -114,7 +114,7 @@ module Leeloo
 
       command :"read secret" do |c|
         c.syntax      = 'leeloo read secret <name>'
-        c.description = "Display a secret from a keystore (private by default)"
+        c.description = "Display a secret from a keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
         c.option '--clipboard', nil, 'copy to clipboard'
 
@@ -122,7 +122,7 @@ module Leeloo
           abort "name is missing" unless args.length == 1
           name = args.first
 
-          options.default :keystore => 'private'
+          options.default :keystore => Config.default['keystore']
           keystore = Config.get_keystore(options.keystore)
 
           secret = Secret.read_secret keystore, name
@@ -135,14 +135,14 @@ module Leeloo
 
       command :"remove secret" do |c|
         c.syntax      = 'leeloo remove secret <name>'
-        c.description = "Remove a secret from a keystore (private by default)"
+        c.description = "Remove a secret from a keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
           abort "name is missing" unless args.length == 1
           name = args.first
 
-          options.default :keystore => 'private'
+          options.default :keystore => Config.default['keystore']
           keystore = Config.get_keystore(options.keystore)
 
           Secret.remove_secret keystore, name

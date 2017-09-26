@@ -10,5 +10,3 @@ module Leeloo
     Command.new.run
   end
 end
-
-Leeloo.start
