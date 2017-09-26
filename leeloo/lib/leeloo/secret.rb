@@ -7,7 +7,7 @@ module Leeloo
   class Secret
 
     def self.list(keystore)
-      puts TTY::Tree.new("#{keystore}/secrets").render
+      puts TTY::Tree.new("#{keystore}/secrets").render.gsub("\.gpg","")
     end
 
     def self.add_secret(keystore, name, secret)
@@ -18,7 +18,7 @@ module Leeloo
 
       crypto = GPGME::Crypto.new :always_trust => true
       crypto.encrypt secret,
-        :output => File.open("#{keystore}/secrets/#{name}","w+"),
+        :output => File.open("#{keystore}/secrets/#{name}.gpg","w+"),
         :recipients => recipients
 
       g = Git.open keystore
@@ -28,7 +28,13 @@ module Leeloo
 
     def self.read_secret(keystore, name)
       crypto = GPGME::Crypto.new
-      crypto.decrypt File.open("#{keystore}/secrets/#{name}")
+      crypto.decrypt File.open("#{keystore}/secrets/#{name}.gpg")
+    end
+
+    def self.delete_secret(keystore, name)
+      g = Git.open keystore
+      g.remove "#{keystore}/secrets/#{name}.gpg"
+      g.commit "secret #{name} removed"
     end
 
     def self.sync_secrets keystore

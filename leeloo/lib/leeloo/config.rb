@@ -8,6 +8,12 @@ module Leeloo
 
     @@keystores = []
 
+    @@default = { "keystore" => "private" }
+
+    def self.default
+      @@default
+    end
+
     def self.init
       Keystore::add_keystore "private", "#{PATH}/private"
       Config::add_keystore "private", "#{PATH}/private"
@@ -15,14 +21,20 @@ module Leeloo
 
     def self.list_keystores
       rows = []
-      @@keystores.each { |keystore| rows << [keystore['name'], keystore['path']] }
-      say Terminal::Table.new :headings => ['Name', 'Path'], :rows => rows
+      @@keystores.each do |keystore|
+        is_default = '*' if keystore['name'] == @@default['keystore']
+        rows << [keystore['name'], keystore['path'], is_default ]
+      end
+      say Terminal::Table.new :headings => ['Name', 'Path', 'Default'], :rows => rows
     end
 
     def self.load
       FileUtils.mkdir_p PATH
       if File.exist? "#{PATH}/keystores"
         @@keystores = YAML.load_file "#{PATH}/keystores"
+      end
+      if File.exist? "#{PATH}/config"
+        @@default = YAML.load_file "#{PATH}/config"
       end
     end
 
