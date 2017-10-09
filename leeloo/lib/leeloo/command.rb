@@ -17,7 +17,7 @@ module Leeloo
       program :help, 'GitHub', 'https://github.com/sylvek'
       program :help_formatter, :compact
 
-      default_command :"list keystore"
+      default_command :"list"
 
       command :"init" do |c|
         c.syntax      = 'leeloo init'
@@ -37,6 +37,7 @@ module Leeloo
           Config::list_keystores
         end
       end
+      alias_command :keystore, :"list keystore"
 
       command :"list secret" do |c|
         c.syntax      = 'leeloo list secret [options]'
@@ -111,6 +112,7 @@ module Leeloo
       end
       alias_command :add, :"add secret"
       alias_command :insert, :"add secret"
+      alias_command :set, :"add secret"
 
       command :"read secret" do |c|
         c.syntax      = 'leeloo read secret <name>'
