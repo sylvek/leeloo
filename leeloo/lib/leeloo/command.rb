@@ -17,7 +17,7 @@ module Leeloo
       program :help, 'GitHub', 'https://github.com/sylvek'
       program :help_formatter, :compact
 
-      default_command :"list keystore"
+      default_command :"list"
 
       command :"init" do |c|
         c.syntax      = 'leeloo init'
@@ -37,6 +37,7 @@ module Leeloo
           Config::list_keystores
         end
       end
+      alias_command :keystore, :"list keystore"
 
       command :"list secret" do |c|
         c.syntax      = 'leeloo list secret [options]'
@@ -111,6 +112,7 @@ module Leeloo
       end
       alias_command :add, :"add secret"
       alias_command :insert, :"add secret"
+      alias_command :set, :"add secret"
 
       command :"read secret" do |c|
         c.syntax      = 'leeloo read secret <name>'
@@ -125,9 +127,13 @@ module Leeloo
           options.default :keystore => Config.default['keystore']
           keystore = Config.get_keystore(options.keystore)
 
-          secret = Secret.read_secret keystore, name
-          say secret unless options.clipboard
-          Clipboard.copy secret if options.clipboard
+          begin
+            secret = Secret.read_secret keystore, name
+            say secret unless options.clipboard
+            Clipboard.copy secret if options.clipboard
+          rescue
+            abort "unable to find #{name}"
+          end
         end
         alias_command :read, :"read secret"
         alias_command :get, :"read secret"
@@ -145,8 +151,12 @@ module Leeloo
           options.default :keystore => Config.default['keystore']
           keystore = Config.get_keystore(options.keystore)
 
-          Secret.remove_secret keystore, name
-          say "#{name} removed successfully"
+          begin
+            Secret.delete_secret keystore, name
+            say "#{name} removed successfully"
+          rescue
+            abort "unable to find #{name}"
+          end
         end
         alias_command :delete, :"remove secret"
         alias_command :erase, :"remove secret"
