@@ -127,9 +127,13 @@ module Leeloo
           options.default :keystore => Config.default['keystore']
           keystore = Config.get_keystore(options.keystore)
 
-          secret = Secret.read_secret keystore, name
-          say secret unless options.clipboard
-          Clipboard.copy secret if options.clipboard
+          begin
+            secret = Secret.read_secret keystore, name
+            say secret unless options.clipboard
+            Clipboard.copy secret if options.clipboard
+          rescue
+            abort "unable to find #{name}"
+          end
         end
         alias_command :read, :"read secret"
         alias_command :get, :"read secret"
@@ -147,8 +151,12 @@ module Leeloo
           options.default :keystore => Config.default['keystore']
           keystore = Config.get_keystore(options.keystore)
 
-          Secret.remove_secret keystore, name
-          say "#{name} removed successfully"
+          begin
+            Secret.delete_secret keystore, name
+            say "#{name} removed successfully"
+          rescue
+            abort "unable to find #{name}"
+          end
         end
         alias_command :delete, :"remove secret"
         alias_command :erase, :"remove secret"
