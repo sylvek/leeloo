@@ -22,7 +22,7 @@ module Leeloo
         :recipients => recipients
 
       g = Git.open keystore
-      g.add "#{keystore}/secrets/#{name}"
+      g.add "#{keystore}/secrets/#{name}.gpg"
       g.commit "secret #{name} added"
     end
 
