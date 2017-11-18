@@ -29,7 +29,7 @@ module Leeloo
         end
       end
 
-      command :"list keystore" do |c|
+      command :"list-keystore" do |c|
         c.syntax      = 'leeloo list'
         c.description = "Display keystores list"
         c.action do |args, options|
@@ -37,9 +37,9 @@ module Leeloo
           Config::list_keystores
         end
       end
-      alias_command :keystore, :"list keystore"
+      alias_command :keystore, :"list-keystore"
 
-      command :"list secret" do |c|
+      command :"list-secret" do |c|
         c.syntax      = 'leeloo list secret [options]'
         c.description = "Display secrets list of keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
@@ -49,9 +49,9 @@ module Leeloo
           Secret::list Config.get_keystore(options.keystore)
         end
       end
-      alias_command :list, :"list secret"
+      alias_command :list, :"list-secret"
 
-      command :"add keystore" do |c|
+      command :"add-keystore" do |c|
         c.syntax      = 'leeloo add keystore <name> <path>'
         c.description = "Add a new keystore"
 
@@ -67,7 +67,7 @@ module Leeloo
         end
       end
 
-      command :"sync secret" do |c|
+      command :"sync-secret" do |c|
         c.syntax      = 'leeloo recrypt secrets'
         c.description = "(re)sync all secrets from a given keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
@@ -78,9 +78,9 @@ module Leeloo
           say "keystore synced successfully"
         end
       end
-      alias_command :sync, :"sync secret"
+      alias_command :sync, :"sync-secret"
 
-      command :"add secret" do |c|
+      command :"add-secret" do |c|
         c.syntax      = 'leeloo add secret <name>'
         c.description = "Add a new secret in a keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
@@ -110,11 +110,12 @@ module Leeloo
           Clipboard.copy secret if options.clipboard
         end
       end
-      alias_command :add, :"add secret"
-      alias_command :insert, :"add secret"
-      alias_command :set, :"add secret"
+      alias_command :write, :"add-secret"
+      alias_command :add, :"add-secret"
+      alias_command :insert, :"add-secret"
+      alias_command :set, :"add-secret"
 
-      command :"read secret" do |c|
+      command :"read-secret" do |c|
         c.syntax      = 'leeloo read secret <name>'
         c.description = "Display a secret from a keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
@@ -135,11 +136,11 @@ module Leeloo
             abort "unable to find #{name}"
           end
         end
-        alias_command :read, :"read secret"
-        alias_command :get, :"read secret"
+        alias_command :read, :"read-secret"
+        alias_command :get, :"read-secret"
       end
 
-      command :"remove secret" do |c|
+      command :"remove-secret" do |c|
         c.syntax      = 'leeloo remove secret <name>'
         c.description = "Remove a secret from a keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
@@ -158,8 +159,9 @@ module Leeloo
             abort "unable to find #{name}"
           end
         end
-        alias_command :delete, :"remove secret"
-        alias_command :erase, :"remove secret"
+        alias_command :remove, :"remove-secret"
+        alias_command :delete, :"remove-secret"
+        alias_command :erase, :"remove-secret"
       end
     end
   end
