@@ -32,9 +32,11 @@ module Leeloo
       command :"list-keystore" do |c|
         c.syntax      = 'leeloo list'
         c.description = "Display keystores list"
+        c.option '--ascii', nil, 'display secrets without unicode tree'
+
         c.action do |args, options|
 
-          Config::list_keystores
+          Config::list_keystores options.ascii
         end
       end
       alias_command :keystore, :"list-keystore"
@@ -43,13 +45,16 @@ module Leeloo
         c.syntax      = 'leeloo list secret [options]'
         c.description = "Display secrets list of keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
+        c.option '--ascii', nil, 'display secrets without unicode tree'
 
         c.action do |args, options|
           options.default :keystore => Config.default['keystore']
-          Secret::list Config.get_keystore(options.keystore)
+
+          Secret::list Config.get_keystore(options.keystore), options.ascii
         end
       end
       alias_command :list, :"list-secret"
+      alias_command :secrets, :"list-secret"
 
       command :"add-keystore" do |c|
         c.syntax      = 'leeloo add keystore <name> <path>'

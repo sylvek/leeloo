@@ -4,10 +4,18 @@ require 'git'
 require 'fileutils'
 
 module Leeloo
+
   class Secret
 
-    def self.list(keystore)
-      puts TTY::Tree.new("#{keystore}/secrets").render.gsub("\.gpg","")
+    def self.list(keystore, ascii)
+      if ascii
+        secrets = Dir.glob("#{keystore}/secrets/**/*.gpg")
+          .sort
+          .reject { |path| File.directory? path }
+            .each { |secret| puts secret.gsub(/#{keystore}\/secrets\//, '').gsub(/\.gpg/, '') }
+      else
+        puts TTY::Tree.new("#{keystore}/secrets").render.gsub(/\.gpg/, '')
+      end
     end
 
     def self.add_secret(keystore, name, secret)
