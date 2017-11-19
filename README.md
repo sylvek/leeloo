@@ -64,3 +64,8 @@ $> leeloo sync secret
 Each action is commited on Git. To share your keystore, [create a remote repository and share it](https://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes).
 
 By default, a new created keystore comes with all registered public keys on your system. So each owner should read your "shared" secret. To manage this list, you could remove or add new public GPG keys. It allows to share secret with someone who don't know you yet.
+
+
+## ZSH completion support !
+
+To use zsh-completion with leeloo you just have to copy _leeloo file into $HOME/.oh-my-zsh/completions/_leeloo
