@@ -69,3 +69,5 @@ By default, a new created keystore comes with all registered public keys on your
 ## ZSH completion support !
 
 To use zsh-completion with leeloo you just have to copy _leeloo file into $HOME/.oh-my-zsh/completions/_leeloo
+
+![demo](leeloo.gif)
