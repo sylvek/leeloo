@@ -30,7 +30,7 @@ module Leeloo
       end
 
       command :"list-keystore" do |c|
-        c.syntax      = 'leeloo list'
+        c.syntax      = 'leeloo keystore'
         c.description = "Display keystores list"
         c.option '--ascii', nil, 'display secrets without unicode tree'
 
@@ -42,7 +42,7 @@ module Leeloo
       alias_command :keystore, :"list-keystore"
 
       command :"list-secret" do |c|
-        c.syntax      = 'leeloo list secret [options]'
+        c.syntax      = 'leeloo list [options]'
         c.description = "Display secrets list of keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
         c.option '--ascii', nil, 'display secrets without unicode tree'
@@ -57,7 +57,7 @@ module Leeloo
       alias_command :secrets, :"list-secret"
 
       command :"add-keystore" do |c|
-        c.syntax      = 'leeloo add keystore <name> <path>'
+        c.syntax      = 'leeloo add-keystore <name> <path>'
         c.description = "Add a new keystore"
 
         c.action do |args, options|
@@ -72,21 +72,34 @@ module Leeloo
         end
       end
 
+      command :"push-keystore" do |c|
+        c.syntax      = "leeloo push"
+        c.description = "push secrets to git repository (if configured)"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          options.default :keystore => Config.default['keystore']
+          Keystore.sync_keystore Config.get_keystore(options.keystore)
+          say "secrets pushed successfully"
+        end
+      end
+      alias_command :push, :"push-keystore"
+
       command :"sync-secret" do |c|
-        c.syntax      = 'leeloo recrypt secrets'
+        c.syntax      = 'leeloo sync secrets'
         c.description = "(re)sync all secrets from a given keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
           options.default :keystore => Config.default['keystore']
           Secret.sync_secrets Config.get_keystore(options.keystore)
-          say "keystore synced successfully"
+          say "secrets synced successfully"
         end
       end
       alias_command :sync, :"sync-secret"
 
       command :"add-secret" do |c|
-        c.syntax      = 'leeloo add secret <name>'
+        c.syntax      = 'leeloo add <name>'
         c.description = "Add a new secret in a keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
         c.option '--generate INTEGER', Integer, 'a number of randomized characters'
@@ -121,7 +134,7 @@ module Leeloo
       alias_command :set, :"add-secret"
 
       command :"read-secret" do |c|
-        c.syntax      = 'leeloo read secret <name>'
+        c.syntax      = 'leeloo read <name>'
         c.description = "Display a secret from a keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
         c.option '--clipboard', nil, 'copy to clipboard'
@@ -146,7 +159,7 @@ module Leeloo
       end
 
       command :"remove-secret" do |c|
-        c.syntax      = 'leeloo remove secret <name>'
+        c.syntax      = 'leeloo remove <name>'
         c.description = "Remove a secret from a keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
 

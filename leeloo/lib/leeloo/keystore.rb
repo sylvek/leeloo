@@ -23,5 +23,10 @@ module Leeloo
       g.commit "keystore #{path} added"
     end
 
+    def self.sync_keystore path
+      g = Git.init path
+      g.push
+    end
+
   end
 end
