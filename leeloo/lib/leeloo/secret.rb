@@ -45,7 +45,7 @@ module Leeloo
       g.commit "secret #{name} removed"
     end
 
-    def self.sync_secrets keystore
+    def self.sign_secrets keystore
 
       g = Git.open keystore
 

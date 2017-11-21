@@ -67,7 +67,7 @@ _leeloo ()
         "read[Read a secret]" \
         "write[Write a secret]" \
         "remove[Remove a secret]" \
-        "push[Push secrets to repository]"
+        "sync[Sync secrets with repository]"
     ;;
     args)
       case $line[1] in

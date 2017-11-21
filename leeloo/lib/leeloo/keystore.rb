@@ -25,6 +25,7 @@ module Leeloo
 
     def self.sync_keystore path
       g = Git.init path
+      g.pull
       g.push
     end
 

@@ -72,31 +72,31 @@ module Leeloo
         end
       end
 
-      command :"push-keystore" do |c|
-        c.syntax      = "leeloo push"
-        c.description = "push secrets to git repository (if configured)"
+      command :"sync-keystore" do |c|
+        c.syntax      = "leeloo sync"
+        c.description = "sync secrets with git repository (if configured)"
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
           options.default :keystore => Config.default['keystore']
           Keystore.sync_keystore Config.get_keystore(options.keystore)
-          say "secrets pushed successfully"
+          say "secrets synced successfully"
         end
       end
-      alias_command :push, :"push-keystore"
+      alias_command :sync :"sync-keystore"
 
-      command :"sync-secret" do |c|
-        c.syntax      = 'leeloo sync secrets'
-        c.description = "(re)sync all secrets from a given keystore"
+      command :"sign-secret" do |c|
+        c.syntax      = 'leeloo sign'
+        c.description = "(re)sign all secrets from a given keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
           options.default :keystore => Config.default['keystore']
-          Secret.sync_secrets Config.get_keystore(options.keystore)
-          say "secrets synced successfully"
+          Secret.sign_secrets Config.get_keystore(options.keystore)
+          say "secrets signed successfully"
         end
       end
-      alias_command :sync, :"sync-secret"
+      alias_command :sign, :"sign-secret"
 
       command :"add-secret" do |c|
         c.syntax      = 'leeloo add <name>'
