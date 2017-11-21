@@ -83,7 +83,7 @@ module Leeloo
           say "secrets synced successfully"
         end
       end
-      alias_command :sync :"sync-keystore"
+      alias_command :sync, :"sync-keystore"
 
       command :"sign-secret" do |c|
         c.syntax      = 'leeloo sign'
