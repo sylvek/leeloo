@@ -9,7 +9,10 @@ Leeloo is based on [GPG](https://gnupg.org/) and [Git](https://git-scm.com/). _(
 
 ## How to install leeloo ?
 
-Please use "gem install leeloo" and have fun ;)
+```
+$> sudo apt-get install ruby ruby-dev
+$> sudo gem install leeloo
+```
 
 ## How to use it ?
 
