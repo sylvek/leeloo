@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "commander", "~> 4.4"
   spec.add_dependency "gpgme", "~> 2.0"
-  spec.add_dependency "git", "~> 1.3"
+  spec.add_dependency "git", "~> 1.5"
   spec.add_dependency "terminal-table", "~> 1.8"
   spec.add_dependency "tty-tree", "~> 0.1"
   spec.add_dependency "clipboard", "~> 1.1"

@@ -2,7 +2,15 @@ require 'commander/import'
 require 'securerandom'
 require 'clipboard'
 
+
+class String
+  def truncate(max)
+    length > max ? self[0...max] : self
+  end
+end
+
 module Leeloo
+
   class Command
     include Commander::Methods
 
@@ -72,6 +80,20 @@ module Leeloo
         end
       end
 
+      command :"remote-keystore" do |c|
+        c.syntax      = "leeloo remote <repository>"
+        c.description = "add a remote repository to synchronize keystore"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          abort "repository is missing" unless args.length == 1
+          repository = args.first
+          Keystore.add_remote Config.get_keystore(options.keystore), repository
+          say "remote added successfully"
+        end
+      end
+      alias_command :remote, :"remote-keystore"
+
       command :"sync-keystore" do |c|
         c.syntax      = "leeloo sync"
         c.description = "sync secrets with git repository (if configured)"
@@ -79,8 +101,12 @@ module Leeloo
 
         c.action do |args, options|
           options.default :keystore => Config.default['keystore']
-          Keystore.sync_keystore Config.get_keystore(options.keystore)
-          say "secrets synced successfully"
+          synchronized = Keystore.sync_keystore Config.get_keystore(options.keystore)
+          if synchronized
+            say "secrets synchronized successfully"
+          else
+            abort "call remote-keystore before sync-keystore"
+          end
         end
       end
       alias_command :sync, :"sync-keystore"
@@ -92,8 +118,8 @@ module Leeloo
 
         c.action do |args, options|
           options.default :keystore => Config.default['keystore']
-          Secret.sign_secrets Config.get_keystore(options.keystore)
-          say "secrets signed successfully"
+          signed = Secret.sign_secrets Config.get_keystore(options.keystore)
+          say "secrets signed successfully" if signed
         end
       end
       alias_command :sign, :"sign-secret"
@@ -115,7 +141,7 @@ module Leeloo
 
           secret = nil
           secret = STDIN.read if options.stdin
-          secret = SecureRandom.base64(options.generate) if options.generate
+          secret = SecureRandom.base64(32).truncate(options.generate.to_i) if options.generate
 
           unless secret
               secret  = password "secret"
@@ -126,6 +152,7 @@ module Leeloo
           Secret.add_secret keystore, name, secret
           say "#{name} added successfully"
           Clipboard.copy secret if options.clipboard
+          say secret unless options.clipboard
         end
       end
       alias_command :write, :"add-secret"

@@ -9,7 +9,7 @@ module Leeloo
 
     def self.list(keystore, ascii)
       if ascii
-        secrets = Dir.glob("#{keystore}/secrets/**/*.gpg")
+        Dir.glob("#{keystore}/secrets/**/*.gpg")
           .sort
           .reject { |path| File.directory? path }
             .each { |secret| puts secret.gsub(/#{keystore}\/secrets\//, '').gsub(/\.gpg/, '') }
@@ -68,6 +68,7 @@ module Leeloo
       end
 
       g.commit "sync"
+      return true
     end
 
     def self.find_secrets path

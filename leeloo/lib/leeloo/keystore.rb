@@ -23,10 +23,18 @@ module Leeloo
       g.commit "keystore #{path} added"
     end
 
+    def self.add_remote path, remote
+      g = Git.open path
+      g.add_remote 'origin', remote
+    end
+
     def self.sync_keystore path
-      g = Git.init path
-      g.pull
-      g.push
+      g = Git.open path
+      unless g.remotes.empty?
+        g.pull
+        g.push
+      end
+      return !g.remotes.empty?
     end
 
   end
