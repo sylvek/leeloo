@@ -165,6 +165,7 @@ module Leeloo
         c.description = "Display a secret from a keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
         c.option '--clipboard', nil, 'copy to clipboard'
+        c.option '--to /path/to/file', String, 'for binary file'
 
         c.action do |args, options|
           abort "name is missing" unless args.length == 1
@@ -175,8 +176,15 @@ module Leeloo
 
           begin
             secret = Secret.read_secret keystore, name
-            say secret unless options.clipboard
-            Clipboard.copy secret if options.clipboard
+
+            if (options.to)
+              File.open(options.to, 'w') { |file| file.write(secret) }
+              say "stored to #{options.to}"
+            else
+              say secret unless options.clipboard
+              Clipboard.copy secret if options.clipboard
+            end
+
           rescue
             abort "unable to find #{name}"
           end
