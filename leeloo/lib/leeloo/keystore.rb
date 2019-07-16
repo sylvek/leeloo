@@ -5,36 +5,73 @@ require 'git'
 module Leeloo
   class Keystore
 
-    def self.secret_key_empty?
-      GPGME::Key.find(:secret, nil, ).empty?
+    attr_reader :name
+
+    def initialize name
+      @name = name
     end
 
-    def self.add_keystore name, path
-      FileUtils.mkdir_p path
-      FileUtils.mkdir_p "#{path}/secrets/"
-      FileUtils.mkdir_p "#{path}/keys/"
+    def secrets
+      # returns the secrets list
+    end
 
-      GPGME::Key.find(:public, nil, ).each do |key|
-        key.export(:output => File.open("#{path}/keys/#{key.uids.first.email}", "w+"))
+    def secret_of element
+      # returns a secret object
+    end
+
+    def secret_from_name element
+      # returns a secret object
+    end
+
+    def == keystore
+      @name == keystore.name
+    end
+  end
+
+  class PrivateLocalFileSystemKeystore < Keystore
+
+    attr_reader :path
+
+    def initialize name, path
+      super name
+      @path = path
+    end
+
+    def secrets
+      find_secrets "#{@path}/secrets"
+    end
+
+    def find_secrets path
+      elements = []
+      Dir.glob("#{path}/**") do |element|
+        elements << secret_of(element) unless Dir.exist? element
+        elements << find_secrets(element) if Dir.exist? element
       end
-
-      g = Git.init path
-      g.add
-      g.commit "keystore #{path} added"
+      return elements.flatten
     end
 
-    def self.add_remote path, remote
-      g = Git.open path
-      g.add_remote 'origin', remote
+    def == keystore
+      @name == keystore.name && @path == keystore.path
     end
 
-    def self.sync_keystore path
-      g = Git.open path
-      unless g.remotes.empty?
-        g.pull
-        g.push
-      end
-      return !g.remotes.empty?
+    def secret_of element
+      LocalFileSystemSecret.new element
+    end
+
+    def secret_from_name element
+      secret_of "#{path}/secrets/#{element}"
+    end
+
+  end
+
+  class GpgPrivateLocalFileSystemKeystore < PrivateLocalFileSystemKeystore
+
+    def secret_of element
+      GpgLocalFileSystemSecret.new element
+    end
+
+    def secret_from_name element
+      secret_of "#{path}/secrets/#{element}.gpg"
     end
 
   end
