@@ -7,7 +7,7 @@ module Leeloo
         end
     end
 
-    class Terminal < Output
+    class Ascii < Output
 
         def render_secrets secrets
             secrets.each() {|secret| puts secret.name}
@@ -17,4 +17,5 @@ module Leeloo
             puts secret.read
         end
     end
+
 end

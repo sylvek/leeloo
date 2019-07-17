@@ -18,7 +18,7 @@ module Leeloo
       
       @preferences = PrivateLocalFileSystemPreferences.new.load
 
-      @output = Terminal.new
+      @output = Ascii.new
       
     end
 
@@ -35,7 +35,7 @@ module Leeloo
 
       default_command :"list"
 
-      command :"list-secret" do |c|
+      command :list do |c|
         c.syntax      = 'leeloo list [options]'
         c.description = "Display secrets list of keystore"
 
@@ -43,10 +43,8 @@ module Leeloo
           @output.render_secrets @preferences.default_keystore.secrets
         end
       end
-      alias_command :list, :"list-secret"
-      alias_command :secrets, :"list-secret"
 
-      command :"read-secret" do |c|
+      command :read do |c|
         c.syntax      = 'leeloo read <name>'
         c.description = "Display a secret from a keystore"
 
@@ -54,8 +52,35 @@ module Leeloo
           name = args.first
           @output.render_secret @preferences.default_keystore.secret_from_name(name)
         end
-        alias_command :read, :"read-secret"
-        alias_command :get, :"read-secret"
+      end
+
+      command :write do |c|
+        c.syntax      = 'leeloo write <name> <secret>'
+        c.description = "Write a secret from a keystore"
+
+        c.action do |args, options|
+          name = args[0]
+          phrase = args[1]
+
+          keystore = @preferences.default_keystore
+          secret = keystore.secret_from_name(name)
+          secret.write(phrase)
+
+          @output.render_secret secret
+        end
+      end
+
+      command :delete do |c|
+        c.syntax      = 'leeloo delete <name>'
+        c.description = "Delete a secret from a keystore"
+
+        c.action do |args, options|
+          name = args[0]
+
+          keystore = @preferences.default_keystore
+          secret = keystore.secret_from_name(name)
+          secret.erase
+        end
       end
 
     end

@@ -1,6 +1,4 @@
-require 'fileutils'
 require 'gpgme'
-require 'git'
 
 module Leeloo
   class Keystore
@@ -55,7 +53,7 @@ module Leeloo
     end
 
     def secret_of element
-      LocalFileSystemSecret.new element
+      LocalFileSystemSecret.new element, element.gsub("#{@path}/secrets/", "")
     end
 
     def secret_from_name element
@@ -66,12 +64,39 @@ module Leeloo
 
   class GpgPrivateLocalFileSystemKeystore < PrivateLocalFileSystemKeystore
 
+    def initialize name, path
+      super name, path
+
+      @recipients = []
+      Dir.glob("#{path}/keys/*") { |key| @recipients << File.basename(key) }
+      @recipients.each { |key| GPGME::Key.import(File.open("#{path}/keys/#{key}")) }
+    end
+
     def secret_of element
-      GpgLocalFileSystemSecret.new element
+      GpgLocalFileSystemSecret.new element, element.gsub("#{@path}/secrets/", "").gsub(".gpg", ""), @recipients
     end
 
     def secret_from_name element
       secret_of "#{path}/secrets/#{element}.gpg"
+    end
+
+  end
+
+  class GitKeystoreAdapter < Keystore
+    def initialize keystore
+      @keystore = keystore
+    end
+
+    def secret_of element
+      GitSecretAdapter.new(@keystore.path, element)
+    end
+
+    def secret_from_name element
+      secret_of @keystore.secret_from_name(element)
+    end
+
+    def secrets
+      @keystore.secrets
     end
 
   end
