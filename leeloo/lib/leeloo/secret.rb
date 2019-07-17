@@ -74,7 +74,7 @@ module Leeloo
 
   end
 
-  class GitSecretAdapter < Secret
+  class GitSecretDecorator < Secret
 
     def initialize keystore_path, secret
       @git = Git.open keystore_path

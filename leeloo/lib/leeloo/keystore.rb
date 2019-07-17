@@ -87,13 +87,13 @@ module Leeloo
 
   end
 
-  class GitKeystoreAdapter < Keystore
+  class GitKeystoreDecorator < Keystore
     def initialize keystore
       @keystore = keystore
     end
 
     def secret_of element
-      GitSecretAdapter.new(@keystore.path, element)
+      GitSecretDecorator.new(@keystore.path, element)
     end
 
     def secret_from_name element

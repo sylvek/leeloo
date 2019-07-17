@@ -32,7 +32,7 @@ module Leeloo
         end
     end
 
-    class ClipboardOutputAdapter < Output
+    class ClipboardOutputDecorator < Output
 
         def initialize output
             @output = output

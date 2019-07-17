@@ -59,7 +59,7 @@ module Leeloo
 
             case keystore["vc"]
             when "git"
-                GitKeystoreAdapter.new keystore_created
+                GitKeystoreDecorator.new keystore_created
             else
                 keystore_created
             end

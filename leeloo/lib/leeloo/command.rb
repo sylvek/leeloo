@@ -54,7 +54,7 @@ module Leeloo
 
           output = @output
           if(options.clipboard)
-            output = ClipboardOutputAdapter.new @output
+            output = ClipboardOutputDecorator.new @output
           end
 
           secret = @preferences.default_keystore.secret_from_name(name)
