@@ -1,4 +1,5 @@
 require 'gpgme'
+require 'fileutils'
 
 module Leeloo
   class Keystore
@@ -33,6 +34,7 @@ module Leeloo
     def initialize name, path
       super name
       @path = path
+      FileUtils.mkdir_p "#{@path}/secrets"
     end
 
     def secrets
@@ -66,6 +68,7 @@ module Leeloo
 
     def initialize name, path
       super name, path
+      FileUtils.mkdir_p "#{@path}/keys"
 
       @recipients = []
       Dir.glob("#{path}/keys/*") { |key| @recipients << File.basename(key) }
