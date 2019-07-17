@@ -23,7 +23,7 @@ module Leeloo
     end
 
     def == keystore
-      @name == keystore.name
+      self.name == keystore.name
     end
   end
 
@@ -51,7 +51,7 @@ module Leeloo
     end
 
     def == keystore
-      @name == keystore.name && @path == keystore.path
+      self.name == keystore.name && self.path == keystore.path
     end
 
     def secret_of path
@@ -102,6 +102,10 @@ module Leeloo
 
     def secrets
       @keystore.secrets
+    end
+
+    def name
+      @keystore.name
     end
 
   end

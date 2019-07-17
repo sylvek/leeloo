@@ -16,6 +16,10 @@ module Leeloo
         def default_keystore
             return @default
         end
+
+        def keystores
+            @keystores.map { |k| KeystoreFactory::create k }
+        end
     end
 
     class PrivateLocalFileSystemPreferences < Preferences

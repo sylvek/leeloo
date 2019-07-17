@@ -44,6 +44,15 @@ module Leeloo
         end
       end
 
+      command :config do |c|
+        c.syntax      = 'leeloo config'
+        c.description = "Display current configuration"
+
+        c.action do |args, options|
+          @output.render_preferences @preferences
+        end
+      end
+
       command :read do |c|
         c.syntax      = 'leeloo read <name>'
         c.description = "Display a secret from a keystore"
