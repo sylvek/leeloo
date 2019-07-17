@@ -1,13 +1,5 @@
 require 'commander/import'
 require 'securerandom'
-require 'clipboard'
-
-
-class String
-  def truncate(max)
-    length > max ? self[0...max] : self
-  end
-end
 
 module Leeloo
 
@@ -17,7 +9,6 @@ module Leeloo
     def initialize
       
       @preferences = PrivateLocalFileSystemPreferences.new.load
-
       @output = Ascii.new
       
     end
@@ -56,10 +47,18 @@ module Leeloo
       command :read do |c|
         c.syntax      = 'leeloo read <name>'
         c.description = "Display a secret from a keystore"
+        c.option '--clipboard', nil, 'copy to clipboard'
 
         c.action do |args, options|
           name = args.first
-          @output.render_secret @preferences.default_keystore.secret_from_name(name)
+
+          output = @output
+          if(options.clipboard)
+            output = ClipboardOutputAdapter.new @output
+          end
+
+          secret = @preferences.default_keystore.secret_from_name(name)
+          output.render_secret secret
         end
       end
 

@@ -1,3 +1,5 @@
+require 'clipboard'
+
 module Leeloo
     class Output
 
@@ -27,6 +29,34 @@ module Leeloo
 
         def render_secret secret
             puts secret.read
+        end
+    end
+
+    class ClipboardOutputAdapter < Output
+
+        def initialize output
+            @output = output
+        end
+
+        def render_preferences preferences
+            @output.render_preferences preferences
+        end
+
+        def render_secrets secrets
+            @output.render_secrets secrets
+        end
+
+        def render_secret secret
+            Clipboard.copy secret.read
+            wait = Thread.new do
+               puts "cleaning in 30s"
+               30.times {
+                   print "."
+                   sleep 1
+               }
+            end
+            wait.join
+            Clipboard.clear
         end
     end
 
