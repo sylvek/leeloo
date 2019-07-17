@@ -14,11 +14,11 @@ module Leeloo
       # returns the secrets list
     end
 
-    def secret_of element
+    def secret_of path
       # returns a secret object
     end
 
-    def secret_from_name element
+    def secret_from_name name
       # returns a secret object
     end
 
@@ -54,12 +54,13 @@ module Leeloo
       @name == keystore.name && @path == keystore.path
     end
 
-    def secret_of element
-      LocalFileSystemSecret.new element, element.gsub("#{@path}/secrets/", "")
+    def secret_of path
+      name = path.gsub("#{@path}/secrets/", "")
+      LocalFileSystemSecret.new path, name
     end
 
-    def secret_from_name element
-      secret_of "#{path}/secrets/#{element}"
+    def secret_from_name name
+      secret_of "#{path}/secrets/#{name}"
     end
 
   end
@@ -75,12 +76,13 @@ module Leeloo
       @recipients.each { |key| GPGME::Key.import(File.open("#{path}/keys/#{key}")) }
     end
 
-    def secret_of element
-      GpgLocalFileSystemSecret.new element, element.gsub("#{@path}/secrets/", "").gsub(".gpg", ""), @recipients
+    def secret_of path
+      name = path.gsub("#{@path}/secrets/", "").gsub(".gpg", "")
+      GpgLocalFileSystemSecret.new path, name, @recipients
     end
 
-    def secret_from_name element
-      secret_of "#{path}/secrets/#{element}.gpg"
+    def secret_from_name name
+      secret_of "#{path}/secrets/#{name}.gpg"
     end
 
   end
