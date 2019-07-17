@@ -22,7 +22,7 @@ module Leeloo
         end
 
         def render_secrets secrets
-            secrets.each() {|secret| puts secret.name}
+            secrets.sort_by(&:name).each() {|secret| puts secret.name}
         end
 
         def render_secret secret
