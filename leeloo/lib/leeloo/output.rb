@@ -44,6 +44,12 @@ module Leeloo
         end
 
         def render_secret secret
+
+            Signal.trap("INT") do
+                Clipboard.clear
+                abort "ciao"
+              end
+
             Clipboard.copy secret.read
             wait = Thread.new do
                puts "cleaning in 30s"
