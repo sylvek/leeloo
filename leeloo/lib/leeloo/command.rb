@@ -31,13 +31,14 @@ module Leeloo
         c.description = "Display secrets list of keystore"
 
         c.action do |args, options|
-          @output.render_secrets @preferences.default_keystore.secrets
+          keystore = @preferences.keystore(options.keystore)
+          @output.render_secrets keystore.secrets
         end
       end
 
-      command :config do |c|
-        c.syntax      = 'leeloo config'
-        c.description = "Display current configuration"
+      command :keystore do |c|
+        c.syntax      = 'leeloo keystores'
+        c.description = "Display current keystores"
 
         c.action do |args, options|
           @output.render_preferences @preferences
@@ -47,6 +48,7 @@ module Leeloo
       command :read do |c|
         c.syntax      = 'leeloo read <name>'
         c.description = "Display a secret from a keystore"
+        c.option '--keystore STRING', String, 'a selected keystore'
         c.option '--clipboard', nil, 'copy to clipboard'
 
         c.action do |args, options|
@@ -57,7 +59,8 @@ module Leeloo
             output = ClipboardOutputDecorator.new @output
           end
 
-          secret = @preferences.default_keystore.secret_from_name(name)
+          keystore = @preferences.keystore(options.keystore)
+          secret = keystore.secret_from_name(name)
           output.render_secret secret
         end
       end
@@ -70,7 +73,7 @@ module Leeloo
           name = args[0]
           phrase = args[1]
 
-          keystore = @preferences.default_keystore
+          keystore = @preferences.keystore(options.keystore)
           secret = keystore.secret_from_name(name)
           secret.write(phrase)
 
@@ -85,7 +88,7 @@ module Leeloo
         c.action do |args, options|
           name = args[0]
 
-          keystore = @preferences.default_keystore
+          keystore = @preferences.keystore(options.keystore)
           secret = keystore.secret_from_name(name)
           secret.erase
         end

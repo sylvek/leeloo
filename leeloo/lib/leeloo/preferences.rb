@@ -17,6 +17,14 @@ module Leeloo
             return @default
         end
 
+        def keystore name=nil
+            if (name)
+                keystores.find { |k| k.name == name }
+            else
+                default_keystore
+            end
+        end
+
         def keystores
             @keystores.map { |k| KeystoreFactory::create k }
         end

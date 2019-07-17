@@ -17,10 +17,7 @@ module Leeloo
 
         def render_preferences preferences
             default_keystore = preferences.default_keystore
-            preferences.keystores.each do |keystore|
-                is_default = default_keystore == keystore
-                puts "name: #{keystore.name} default: #{is_default}"
-            end
+            preferences.keystores.each { |keystore| puts keystore.name }
         end
 
         def render_secrets secrets
