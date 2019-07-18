@@ -104,6 +104,7 @@ module Leeloo
   class GitKeystoreDecorator < Keystore
     def initialize keystore
       @keystore = keystore
+      Git.init @keystore.path
       @git = Git.open keystore.path
     end
 
@@ -131,7 +132,6 @@ module Leeloo
 
     def init
       @keystore.init
-      Git.init @keystore.path
       @git.add
       @git.commit "keystore #{@keystore.name} added"
     end

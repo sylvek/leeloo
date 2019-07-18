@@ -16,7 +16,6 @@ module Leeloo
     class Ascii < Output
 
         def render_preferences preferences
-            default_keystore = preferences.default_keystore
             preferences.keystores.each { |keystore| puts keystore.name }
         end
 
