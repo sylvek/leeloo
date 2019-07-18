@@ -1,5 +1,4 @@
 require 'gpgme'
-require 'git'
 require 'fileutils'
 
 module Leeloo
@@ -76,8 +75,8 @@ module Leeloo
 
   class GitSecretDecorator < Secret
 
-    def initialize keystore_path, secret
-      @git = Git.open keystore_path
+    def initialize git, secret
+      @git = git
       @secret = secret
     end
 

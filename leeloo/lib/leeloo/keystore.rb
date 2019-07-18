@@ -1,5 +1,6 @@
 require 'gpgme'
 require 'fileutils'
+require 'git'
 
 module Leeloo
   class Keystore
@@ -20,6 +21,14 @@ module Leeloo
 
     def secret_from_name name
       # returns a secret object
+    end
+
+    def sync
+      # synchronizes the keystore
+    end
+
+    def init
+      # initialize the keystore
     end
 
     def == keystore
@@ -76,6 +85,11 @@ module Leeloo
       @recipients.each { |key| GPGME::Key.import(File.open("#{path}/keys/#{key}")) }
     end
 
+    def init
+      super
+      GPGME::Key.find(:public, nil, ).each { |key| key.export(:output => File.open("#{path}/keys/#{key.uids.first.email}", "w+")) }
+    end
+
     def secret_of path
       name = path.gsub("#{@path}/secrets/", "").gsub(".gpg", "")
       GpgLocalFileSystemSecret.new path, name, @recipients
@@ -90,10 +104,11 @@ module Leeloo
   class GitKeystoreDecorator < Keystore
     def initialize keystore
       @keystore = keystore
+      @git = Git.open keystore.path
     end
 
     def secret_of element
-      GitSecretDecorator.new(@keystore.path, element)
+      GitSecretDecorator.new(@git, element)
     end
 
     def secret_from_name element
@@ -106,6 +121,19 @@ module Leeloo
 
     def name
       @keystore.name
+    end
+
+    def sync
+      @git.pull
+      @keystore.sync
+      @git.push
+    end
+
+    def init
+      @keystore.init
+      Git.init @keystore.path
+      @git.add
+      @git.commit "keystore #{@keystore.name} added"
     end
 
   end
