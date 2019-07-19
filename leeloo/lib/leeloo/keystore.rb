@@ -3,6 +3,26 @@ require 'fileutils'
 require 'git'
 
 module Leeloo
+
+  class KeystoreFactory
+    def self.create keystore
+        keystore_created = nil
+        case keystore["cypher"]
+        when "gpg"
+            keystore_created = GpgPrivateLocalFileSystemKeystore.new keystore["name"], keystore["path"] 
+        else
+            keystore_created = PrivateLocalFileSystemKeystore.new keystore["name"], keystore["path"]
+        end
+
+        case keystore["vc"]
+        when "git"
+            GitKeystoreDecorator.new keystore_created
+        else
+            keystore_created
+        end
+    end
+  end
+
   class Keystore
 
     attr_reader :name

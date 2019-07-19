@@ -1,6 +1,7 @@
 require 'clipboard'
 
 module Leeloo
+
     class Output
 
         def render_preferences preferences
@@ -26,6 +27,9 @@ module Leeloo
         def render_secret secret
             puts secret.read
         end
+    end
+
+    class Terminal < Ascii
     end
 
     class ClipboardOutputDecorator < Output

@@ -9,12 +9,27 @@ end
 
 module Leeloo
 
+  class OutputFactory
+    def self.create options
+      output = nil
+      if options.ascii
+        output = Ascii.new
+      else
+        output = Terminal.new
+      end
+      if options.clipboard
+        ClipboardOutputDecorator.new output
+      else
+        output
+      end
+    end
+  end
+
   class Command
     include Commander::Methods
 
     def initialize
       @preferences = PrivateLocalFileSystemPreferences.new.load
-      @output = Ascii.new
     end
 
     def run
@@ -37,7 +52,7 @@ module Leeloo
 
         c.action do |args, options|
           keystore = @preferences.keystore(options.keystore)
-          @output.render_secrets keystore.secrets
+          OutputFactory.create(options).render_secrets keystore.secrets
         end
       end
 
@@ -47,7 +62,7 @@ module Leeloo
         c.option '--ascii', nil, 'display secrets without unicode tree'
 
         c.action do |args, options|
-          @output.render_preferences @preferences
+          OutputFactory.create(options).render_preferences @preferences
         end
       end
 
@@ -61,14 +76,9 @@ module Leeloo
           abort "name is missing" unless args.length == 1
           name = args.first
 
-          output = @output
-          if(options.clipboard)
-            output = ClipboardOutputDecorator.new @output
-          end
-
           keystore = @preferences.keystore(options.keystore)
           secret = keystore.secret_from_name(name)
-          output.render_secret secret
+          OutputFactory.create(options).render_secret secret
         end
       end
 
@@ -98,11 +108,7 @@ module Leeloo
           secret = keystore.secret_from_name(name)
           secret.write(phrase)
 
-          output = @output
-          if(options.clipboard)
-            output = ClipboardOutputDecorator.new @output
-          end
-          output.render_secret secret
+          OutputFactory.create(options).render_secret secret
         end
       end
 
