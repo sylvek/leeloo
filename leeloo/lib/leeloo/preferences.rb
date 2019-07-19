@@ -3,6 +3,8 @@ require 'yaml'
 module Leeloo
     class Preferences
 
+        attr_reader :default
+
         def initialize
             @keystores = []
             @default = nil

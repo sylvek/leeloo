@@ -144,6 +144,10 @@ module Leeloo
       @keystore.name
     end
 
+    def path
+      @keystore.path
+    end
+
     def sync
       @git.pull
       @keystore.sync

@@ -1,4 +1,5 @@
 require 'clipboard'
+require 'tty-table'
 
 module Leeloo
 
@@ -21,7 +22,7 @@ module Leeloo
         end
 
         def render_secrets secrets
-            secrets.sort_by(&:name).each() {|secret| puts secret.name}
+            secrets.sort_by(&:name).each {|secret| puts secret.name}
         end
 
         def render_secret secret
@@ -30,6 +31,23 @@ module Leeloo
     end
 
     class Terminal < Ascii
+
+        def render_preferences preferences
+            rows = []
+            default_keystore = preferences.default
+            preferences.keystores.each do |keystore|
+                is_default = '*' if keystore.name == default_keystore
+                rows << [keystore.name, keystore.path, is_default ]
+              end
+              table = TTY::Table.new header: ['Name', 'Path', 'Default'], rows: rows
+              puts table.render(:ascii)
+        end
+
+        def render_secrets secrets
+            secrets.sort_by(&:name).each do |secret|
+                elements = secret.name.split("/")
+            end
+        end
     end
 
     class ClipboardOutputDecorator < Output
