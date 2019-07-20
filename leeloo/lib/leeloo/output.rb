@@ -1,5 +1,6 @@
 require 'clipboard'
 require 'tty-table'
+require 'tty-tree'
 
 module Leeloo
 
@@ -39,14 +40,38 @@ module Leeloo
                 is_default = '*' if keystore.name == default_keystore
                 rows << [keystore.name, keystore.path, is_default ]
               end
-              table = TTY::Table.new header: ['Name', 'Path', 'Default'], rows: rows
-              puts table.render(:ascii)
+              puts TTY::Table.new(header: ['Name', 'Path', 'Default'], rows: rows).render(:ascii)
         end
 
         def render_secrets secrets
-            secrets.sort_by(&:name).each do |secret|
-                elements = secret.name.split("/")
+            hash = {:secrets => []}
+            secrets.sort_by(&:name).each { |secret| sort(hash[:secrets], secret.name) }
+            puts TTY::Tree.new(hash).render
+        end
+
+        def sort array, element
+            if element
+                e = element.split("/", 2)
+                if e.length > 1
+                    found = false
+                    array.each do |a|
+                        if a.is_a? Hash
+                            if a[e.first]
+                                found = true
+                                sort(a[e.first], e.last)
+                                break
+                            end
+                        end
+                    end
+
+                    unless found
+                        array << { e.first => sort([], e.last) }
+                    end
+                else
+                    array << e.last
+                end
             end
+            array
         end
     end
 

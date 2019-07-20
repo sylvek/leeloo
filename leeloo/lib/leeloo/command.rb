@@ -49,6 +49,7 @@ module Leeloo
         c.syntax      = 'leeloo list [options]'
         c.description = "Display secrets list of keystore"
         c.option '--ascii', nil, 'display secrets without unicode tree'
+        c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
           keystore = @preferences.keystore(options.keystore)
@@ -66,11 +67,37 @@ module Leeloo
         end
       end
 
+      command "keystore add" do |c|
+        c.syntax      = 'leeloo keystore add <name> <path/to/keystore>'
+        c.description = "add a keystore"
+
+        c.action do |args, options|
+          abort "name or path is missing" unless args.length == 2
+
+          @preferences.add_keystore({"name" => args.first, "path" => args.last, "cypher" => "gpg", "vc" => "git"})
+          @preferences.keystore(args.first).init
+          OutputFactory.create(options).render_preferences @preferences
+        end
+      end
+
+      command "keystore default" do |c|
+        c.syntax      = 'leeloo keystore default name'
+        c.description = "set the default keystore"
+
+        c.action do |args, options|
+          abort "name is missing" unless args.length == 1
+
+          @preferences.set_default_keystore args.first
+          OutputFactory.create(options).render_preferences @preferences
+        end
+      end
+
       command :read do |c|
         c.syntax      = 'leeloo read <name>'
         c.description = "Display a secret from a keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
         c.option '--clipboard', nil, 'copy to clipboard'
+        c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
           abort "name is missing" unless args.length == 1

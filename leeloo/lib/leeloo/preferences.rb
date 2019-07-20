@@ -20,7 +20,7 @@ module Leeloo
         end
 
         def keystore name=nil
-            keystores.find { |k| k.name == name||@default }
+            keystores.find { |k| k.name == (name||@default) }
         end
 
         def keystores
