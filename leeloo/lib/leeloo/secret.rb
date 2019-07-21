@@ -80,6 +80,10 @@ module Leeloo
       @secret = secret
     end
 
+    def name
+      @secret.name
+    end
+
     def read
       @secret.read
     end

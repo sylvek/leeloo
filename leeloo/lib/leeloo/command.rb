@@ -139,6 +139,18 @@ module Leeloo
         end
       end
 
+      command :translate do |c|
+        c.syntax      = 'leeloo translate'
+        c.description = "translate stdin by replacing key ${my/secret} by the current value"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          keystore = @preferences.keystore(options.keystore)
+          text = STDIN.read
+          OutputFactory.create(options).render_translate keystore, text
+        end
+      end
+
       command :remove do |c|
         c.syntax      = 'leeloo delete <name>'
         c.description = "Delete a secret from a keystore"

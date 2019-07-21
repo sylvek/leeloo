@@ -14,6 +14,9 @@ module Leeloo
 
         def render_secret secret
         end
+
+        def render_translate keystore, text
+        end
     end
 
     class Ascii < Output
@@ -27,7 +30,22 @@ module Leeloo
         end
 
         def render_secret secret
-            puts secret.read
+            begin
+                puts secret.read
+            rescue => exception
+                puts "#{secret.name} doesn't exist"
+            end
+        end
+
+        def render_translate keystore, text
+            text.scan(/\$\{.*\}/).each do |secret|
+                begin
+                   text.gsub! secret, (keystore.secret_from_name(secret[2..-2])).read.to_s.strip 
+                rescue => exception
+                    # silent
+                end
+            end
+            puts text
         end
     end
 
@@ -87,6 +105,10 @@ module Leeloo
 
         def render_secrets secrets
             @output.render_secrets secrets
+        end
+
+        def render_translate keystore, text
+            @output.render_translate keystore, text
         end
 
         def render_secret secret

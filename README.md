@@ -69,6 +69,9 @@ $> leeloo read my_secret
 
 $> leeloo sync
 # will synchronize keystore
+
+$> cat file | leeloo translate
+# will replace ${my_secret} by the current secret and will return file translated
 ```
 
 ## How to share a keystore ?
