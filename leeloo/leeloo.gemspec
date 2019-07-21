@@ -25,12 +25,12 @@ Gem::Specification.new do |spec|
   spec.add_dependency "commander", "~> 4.4"
   spec.add_dependency "gpgme", "~> 2.0"
   spec.add_dependency "git", "~> 1.5"
-  spec.add_dependency "tty-table", "~> 0.1"
-  spec.add_dependency "tty-tree", "~> 0.1"
-  spec.add_dependency "clipboard", "~> 1.1"
-  spec.add_dependency "ffi", "~> 1.9"
+  spec.add_dependency "tty-table", "~> 0.10"
+  spec.add_dependency "tty-tree", "~> 0.3"
+  spec.add_dependency "clipboard", "~> 1.3"
+  spec.add_dependency "ffi", "~> 1.10.0"
 
-  spec.add_development_dependency "bundler", "~> 1.15"
-  spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "bundler", "~> 2.0"
+  spec.add_development_dependency "rake", "~> 12.0"
   spec.add_development_dependency "rspec", "~> 3.0"
 end

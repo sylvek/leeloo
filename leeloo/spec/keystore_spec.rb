@@ -11,13 +11,13 @@ RSpec.describe Leeloo do
     end
 
     it "can describe secrets" do
-       expect(preferences.default_keystore.secrets).to eq(
-           [Leeloo::LocalFileSystemSecret.new("#{KEYSTORE_TEST_PATH}/secrets/my/secret"),
-            Leeloo::LocalFileSystemSecret.new("#{KEYSTORE_TEST_PATH}/secrets/my_secret")])
+       expect(preferences.keystore().secrets).to eq(
+           [Leeloo::LocalFileSystemSecret.new("#{KEYSTORE_TEST_PATH}/secrets/my/secret", "my/secret"),
+            Leeloo::LocalFileSystemSecret.new("#{KEYSTORE_TEST_PATH}/secrets/my_secret", "my_secret")])
     end
 
     it "can read a secret" do
-        expect(preferences.default_keystore.secrets[0].read).to eq("hello")
+        expect(preferences.keystore().secrets[0].read).to eq("hello")
     end
 
 end

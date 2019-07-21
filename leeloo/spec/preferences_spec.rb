@@ -12,7 +12,7 @@ RSpec.describe Leeloo do
 
     it "can load local preferences" do
         default_keystore = Leeloo::PrivateLocalFileSystemKeystore.new "test", KEYSTORE_TEST_PATH
-        expect(preferences.default_keystore).to eq(default_keystore)
+        expect(preferences.keystore()).to eq(default_keystore)
     end
 
 end
