@@ -10,7 +10,7 @@ Leeloo is based on [GPG](https://gnupg.org/) and [Git](https://git-scm.com/). _(
 ## How to install leeloo ?
 
 ```
-$> sudo apt-get install ruby ruby-dev libffi-dev
+$> sudo apt-get install ruby ruby-dev
 $> sudo gem install leeloo
 ```
 
@@ -20,7 +20,7 @@ $> sudo gem install leeloo
 $> leeloo
 # will create your first keystore (stored in ~/.leeloo/private)
 
-$> leeloo
+$> leeloo keystore
 # will display all your keystores
 +-------+------------------------------+-------+
 |Name   |Path                          |Default|
@@ -28,7 +28,7 @@ $> leeloo
 |private|/Users/sylvek/.leeloo/private |*      |
 +-------+------------------------------+-------+
 
-$> leeloo keystore add password-store ~/.password-store
+$> leeloo keystore add password-store ~/Desktop/test
 # will add password-store keystore
 +-------+------------------------------+-------+
 |Name   |Path                          |Default|
@@ -46,12 +46,6 @@ $> leeloo keystore default test
 |test   |/Users/sylvek/Desktop/test    |*      |
 +-------+------------------------------+-------+
 
-# please make symbolic link to secrets if you use leeloo with password-store
-$> ll ~/.password-store
-drwx------  35 sylvek  staff   1,2K  4 sep 20:38 Personal
-drwxr-xr-x   3 sylvek  staff   102B  4 sep 23:04 keys
-lrwxr-xr-x   1 sylvek  staff     8B  4 sep 20:38 secrets -> Personal
-
 $> leeloo write my_secret
 # will add a secret
 
@@ -61,8 +55,8 @@ $> leeloo write my_secret --generate 5
 $> echo "my secret" | leeloo write my_secret --stdin
 # will add a secret from STDIN
 
-$> leeloo write my_secret --keystore password-store
-# will add a secret to "password-store"
+$> leeloo write my_secret --keystore test
+# will add a secret to "test"
 
 $> leeloo read my_secret
 # display it
@@ -70,7 +64,7 @@ $> leeloo read my_secret
 $> leeloo sync
 # will synchronize keystore
 
-$> cat file | leeloo translate
+$> leeloo translate < file.in > file.out
 # will replace ${my_secret} by the current secret and will return file translated
 ```
 
