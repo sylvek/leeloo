@@ -1,12 +1,12 @@
 require 'leeloo/version'
 require 'leeloo/command'
-require 'leeloo/secret'
+require 'leeloo/preferences'
 require 'leeloo/keystore'
-require 'leeloo/config'
+require 'leeloo/secret'
+require 'leeloo/output'
 
 module Leeloo
   def self.start
-    Config.load
     Command.new.run
   end
 end

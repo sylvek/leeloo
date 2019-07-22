@@ -17,25 +17,34 @@ $> sudo gem install leeloo
 ## How to use it ?
 
 ```
-$> leeloo init
+$> leeloo
 # will create your first keystore (stored in ~/.leeloo/private)
 
 $> leeloo
 # will display all your keystores
-+----------------+----------------------------------------+
-| Name           | Path                                   |
-+----------------+----------------------------------------+
-| private        | /Users/sylvek/.leeloo/private          |
-+----------------+----------------------------------------+
++-------+------------------------------+-------+
+|Name   |Path                          |Default|
++-------+------------------------------+-------+
+|private|/Users/sylvek/.leeloo/private |*      |
++-------+------------------------------+-------+
 
-$> leeloo add keystore password-store ~/.password-store
+$> leeloo keystore add password-store ~/.password-store
 # will add password-store keystore
-+----------------+----------------------------------------+
-| Name           | Path                                   |
-+----------------+----------------------------------------+
-| private        | /Users/sylvek/.leeloo/private          |
-| password-store | /Users/sylvek/.password-store          |
-+----------------+----------------------------------------+
++-------+------------------------------+-------+
+|Name   |Path                          |Default|
++-------+------------------------------+-------+
+|private|/Users/sylvek/.leeloo/private |*      |
+|test   |/Users/sylvek/Desktop/test    |       |
++-------+------------------------------+-------+
+
+$> leeloo keystore default test
+# will change the default keystore
++-------+------------------------------+-------+
+|Name   |Path                          |Default|
++-------+------------------------------+-------+
+|private|/Users/sylvek/.leeloo/private |       |
+|test   |/Users/sylvek/Desktop/test    |*      |
++-------+------------------------------+-------+
 
 # please make symbolic link to secrets if you use leeloo with password-store
 $> ll ~/.password-store
@@ -43,23 +52,26 @@ drwx------  35 sylvek  staff   1,2K  4 sep 20:38 Personal
 drwxr-xr-x   3 sylvek  staff   102B  4 sep 23:04 keys
 lrwxr-xr-x   1 sylvek  staff     8B  4 sep 20:38 secrets -> Personal
 
-$> leeloo add secret my_secret
+$> leeloo write my_secret
 # will add a secret
 
-$> leeloo add secret my_secret --generate 5
+$> leeloo write my_secret --generate 5
 # will add a randomized secret
 
-$> echo "my secret" | leeloo add secret my_secret --stdin
+$> echo "my secret" | leeloo write my_secret --stdin
 # will add a secret from STDIN
 
-$> leeloo add secret my_secret --keystore password-store
+$> leeloo write my_secret --keystore password-store
 # will add a secret to "password-store"
 
-$> leeloo read secret my_secret
+$> leeloo read my_secret
 # display it
 
-$> leeloo sync secret
-# will (re)crypt all secrets with the new given keys (from keys directory)
+$> leeloo sync
+# will synchronize keystore
+
+$> cat file | leeloo translate
+# will replace ${my_secret} by the current secret and will return file translated
 ```
 
 ## How to share a keystore ?

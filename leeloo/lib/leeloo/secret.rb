@@ -1,84 +1,105 @@
 require 'gpgme'
-require 'tty-tree'
-require 'git'
 require 'fileutils'
 
 module Leeloo
-
   class Secret
 
-    def self.list(keystore, ascii)
-      if ascii
-        Dir.glob("#{keystore}/secrets/**/*.gpg")
-          .sort
-          .reject { |path| File.directory? path }
-            .each { |secret| puts secret.gsub(/#{keystore}\/secrets\//, '').gsub(/\.gpg/, '') }
-      else
-        puts TTY::Tree.new("#{keystore}/secrets").render.gsub(/\.gpg/, '')
-      end
+    attr_reader :name
+
+    def initialize name
+      @name = name
     end
 
-    def self.add_secret(keystore, name, secret)
-      recipients = []
-      Dir.foreach("#{keystore}/keys") { |key| recipients << File.basename(key, ".*") unless File.directory? key }
-
-      FileUtils.mkdir_p File.dirname "#{keystore}/secrets/#{name}"
-
-      crypto = GPGME::Crypto.new :always_trust => true
-      crypto.encrypt secret,
-        :output => File.open("#{keystore}/secrets/#{name}.gpg","w+"),
-        :recipients => recipients
-
-      g = Git.open keystore
-      g.add "#{keystore}/secrets/#{name}.gpg"
-      g.commit "secret #{name} added"
+    def == secret
+      @name == secret.name
     end
 
-    def self.read_secret(keystore, name)
-      crypto = GPGME::Crypto.new
-      crypto.decrypt File.open("#{keystore}/secrets/#{name}.gpg")
+    def read
+      # returns the secret
     end
 
-    def self.delete_secret(keystore, name)
-      g = Git.open keystore
-      g.remove "#{keystore}/secrets/#{name}.gpg"
-      g.commit "secret #{name} removed"
+    def write phrase
+      # write the secret
     end
 
-    def self.sign_secrets keystore
-
-      g = Git.open keystore
-
-      recipients = []
-      Dir.foreach("#{keystore}/keys") do |key|
-        unless File.directory? key
-          recipients << File.basename(key, ".*")
-          GPGME::Key.import(File.open("#{keystore}/keys/#{key}"))
-        end
-      end
-
-      crypto = GPGME::Crypto.new :always_trust => true
-      find_secrets("#{keystore}/secrets").each do |secret|
-          say "."
-          decrypted = crypto.decrypt File.open(secret)
-          crypto.encrypt decrypted,
-            :output => File.open(secret,"w+"),
-            :recipients => recipients
-          g.add secret
-      end
-
-      g.commit "sync"
-      return true
-    end
-
-    def self.find_secrets path
-      elements = []
-      Dir.glob("#{path}/**") do |element|
-        elements << element unless Dir.exist? element
-        elements << find_secrets(element) if Dir.exist? element
-      end
-      return elements.flatten
+    def erase
+      # erase the secret
     end
 
   end
+
+  class LocalFileSystemSecret < Secret
+
+    attr_reader :pathname
+
+    def initialize pathname, name
+      super name
+      @pathname = pathname
+    end
+
+    def read
+      File.read @pathname
+    end
+
+    def write phrase
+      FileUtils.mkdir_p File.dirname @pathname
+      File.write @pathname, phrase
+    end
+
+    def erase
+      File.delete @pathname
+    end
+
+  end
+
+  class GpgLocalFileSystemSecret < LocalFileSystemSecret
+
+    def initialize pathname, name, recipients
+      super pathname, name
+      @recipients = recipients
+      @crypto = GPGME::Crypto.new :always_trust => true
+    end
+  
+    def read
+      @crypto.decrypt File.open(@pathname)
+    end
+
+    def write phrase
+      FileUtils.mkdir_p File.dirname @pathname
+      @crypto.encrypt phrase,
+        :output => File.open(@pathname,"w+"),
+        :recipients => @recipients
+    end
+
+  end
+
+  class GitSecretDecorator < Secret
+
+    def initialize git, secret
+      @git = git
+      @secret = secret
+    end
+
+    def name
+      @secret.name
+    end
+
+    def read
+      @secret.read
+    end
+
+    def write phrase
+      @secret.write phrase
+      @git.add @secret.pathname
+      @git.commit "secret #{@secret.name} added"
+    end
+
+    def erase
+      @secret.erase
+      @git.remove @secret.pathname
+      @git.commit "secret #{@secret.name} removed"
+    end
+
+  end
+
 end

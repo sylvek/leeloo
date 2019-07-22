@@ -1,7 +1,5 @@
 require 'commander/import'
 require 'securerandom'
-require 'clipboard'
-
 
 class String
   def truncate(max)
@@ -11,8 +9,28 @@ end
 
 module Leeloo
 
+  class OutputFactory
+    def self.create options
+      output = nil
+      if options.ascii
+        output = Ascii.new
+      else
+        output = Terminal.new
+      end
+      if options.clipboard
+        ClipboardOutputDecorator.new output
+      else
+        output
+      end
+    end
+  end
+
   class Command
     include Commander::Methods
+
+    def initialize
+      @preferences = PrivateLocalFileSystemPreferences.new.load
+    end
 
     def run
       program :name, 'leeloo'
@@ -27,106 +45,73 @@ module Leeloo
 
       default_command :"list"
 
-      command :"init" do |c|
-        c.syntax      = 'leeloo init'
-        c.description = "Initialize leeloo and private keystore"
-        c.action do |args, options|
-          abort("a secret key PGP is mandatory") if Keystore::secret_key_empty?
-          Config::init
-          say "Initialization completed"
-        end
-      end
-
-      command :"list-keystore" do |c|
-        c.syntax      = 'leeloo keystore'
-        c.description = "Display keystores list"
-        c.option '--ascii', nil, 'display secrets without unicode tree'
-
-        c.action do |args, options|
-
-          Config::list_keystores options.ascii
-        end
-      end
-      alias_command :keystore, :"list-keystore"
-
-      command :"list-secret" do |c|
+      command :list do |c|
         c.syntax      = 'leeloo list [options]'
         c.description = "Display secrets list of keystore"
+        c.option '--ascii', nil, 'display secrets without unicode tree'
         c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          keystore = @preferences.keystore(options.keystore)
+          OutputFactory.create(options).render_secrets keystore.secrets
+        end
+      end
+
+      command :keystore do |c|
+        c.syntax      = 'leeloo keystores'
+        c.description = "Display current keystores"
         c.option '--ascii', nil, 'display secrets without unicode tree'
 
         c.action do |args, options|
-          options.default :keystore => Config.default['keystore']
-
-          Secret::list Config.get_keystore(options.keystore), options.ascii
+          OutputFactory.create(options).render_preferences @preferences
         end
       end
-      alias_command :list, :"list-secret"
-      alias_command :secrets, :"list-secret"
 
-      command :"add-keystore" do |c|
-        c.syntax      = 'leeloo add-keystore <name> <path>'
-        c.description = "Add a new keystore"
+      command "keystore add" do |c|
+        c.syntax      = 'leeloo keystore add <name> <path/to/keystore>'
+        c.description = "add a keystore"
 
         c.action do |args, options|
+          abort "name or path is missing" unless args.length == 2
 
-          abort "name or path are missing" unless args.length == 2
+          @preferences.add_keystore({"name" => args.first, "path" => args.last, "cypher" => "gpg", "vc" => "git"})
+          @preferences.keystore(args.first).init
+          OutputFactory.create(options).render_preferences @preferences
+        end
+      end
+
+      command "keystore default" do |c|
+        c.syntax      = 'leeloo keystore default name'
+        c.description = "set the default keystore"
+
+        c.action do |args, options|
+          abort "name is missing" unless args.length == 1
+
+          @preferences.set_default_keystore args.first
+          OutputFactory.create(options).render_preferences @preferences
+        end
+      end
+
+      command :read do |c|
+        c.syntax      = 'leeloo read <name>'
+        c.description = "Display a secret from a keystore"
+        c.option '--keystore STRING', String, 'a selected keystore'
+        c.option '--clipboard', nil, 'copy to clipboard'
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          abort "name is missing" unless args.length == 1
           name = args.first
-          keystore = args.last
 
-          Keystore.add_keystore name, keystore
-          Config.add_keystore name, keystore
-          say "keystore #{name} added"
+          keystore = @preferences.keystore(options.keystore)
+          secret = keystore.secret_from_name(name)
+          OutputFactory.create(options).render_secret secret
         end
       end
 
-      command :"remote-keystore" do |c|
-        c.syntax      = "leeloo remote <repository>"
-        c.description = "add a remote repository to synchronize keystore"
-        c.option '--keystore STRING', String, 'a selected keystore'
-
-        c.action do |args, options|
-          abort "repository is missing" unless args.length == 1
-          repository = args.first
-          Keystore.add_remote Config.get_keystore(options.keystore), repository
-          say "remote added successfully"
-        end
-      end
-      alias_command :remote, :"remote-keystore"
-
-      command :"sync-keystore" do |c|
-        c.syntax      = "leeloo sync"
-        c.description = "sync secrets with git repository (if configured)"
-        c.option '--keystore STRING', String, 'a selected keystore'
-
-        c.action do |args, options|
-          options.default :keystore => Config.default['keystore']
-          synchronized = Keystore.sync_keystore Config.get_keystore(options.keystore)
-          if synchronized
-            say "secrets synchronized successfully"
-          else
-            abort "call remote-keystore before sync-keystore"
-          end
-        end
-      end
-      alias_command :sync, :"sync-keystore"
-
-      command :"sign-secret" do |c|
-        c.syntax      = 'leeloo sign'
-        c.description = "(re)sign all secrets from a given keystore"
-        c.option '--keystore STRING', String, 'a selected keystore'
-
-        c.action do |args, options|
-          options.default :keystore => Config.default['keystore']
-          signed = Secret.sign_secrets Config.get_keystore(options.keystore)
-          say "secrets signed successfully" if signed
-        end
-      end
-      alias_command :sign, :"sign-secret"
-
-      command :"add-secret" do |c|
-        c.syntax      = 'leeloo add <name>'
-        c.description = "Add a new secret in a keystore"
+      command :write do |c|
+        c.syntax      = 'leeloo write <name> <secret>'
+        c.description = "Write a secret from a keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
         c.option '--generate INTEGER', Integer, 'a number of randomized characters'
         c.option '--stdin', nil, 'secret given by stdin pipe'
@@ -135,87 +120,74 @@ module Leeloo
         c.action do |args, options|
           abort "name is missing" unless args.length == 1
           name = args.first
+          phrase = nil
 
-          options.default :keystore => Config.default['keystore']
-          keystore = Config.get_keystore(options.keystore)
+          phrase = STDIN.read if options.stdin
+          phrase = SecureRandom.base64(32).truncate(options.generate.to_i) if options.generate
 
-          secret = nil
-          secret = STDIN.read if options.stdin
-          secret = SecureRandom.base64(32).truncate(options.generate.to_i) if options.generate
-
-          unless secret
-              secret  = password "secret"
-              confirm = password "confirm it"
-              abort "not the same secret" unless secret == confirm
+          unless phrase
+            phrase  = password "secret"
+            confirm = password "confirm it"
+            abort "not the same secret" unless phrase == confirm
           end
 
-          Secret.add_secret keystore, name, secret
-          say "#{name} added successfully"
-          Clipboard.copy secret if options.clipboard
-          say secret unless options.clipboard
+          keystore = @preferences.keystore(options.keystore)
+          secret = keystore.secret_from_name(name)
+          secret.write(phrase)
+
+          OutputFactory.create(options).render_secret secret
         end
       end
-      alias_command :write, :"add-secret"
-      alias_command :add, :"add-secret"
-      alias_command :insert, :"add-secret"
-      alias_command :set, :"add-secret"
 
-      command :"read-secret" do |c|
-        c.syntax      = 'leeloo read <name>'
-        c.description = "Display a secret from a keystore"
+      command :translate do |c|
+        c.syntax      = 'leeloo translate'
+        c.description = "translate stdin by replacing key ${my/secret} by the current value"
         c.option '--keystore STRING', String, 'a selected keystore'
-        c.option '--clipboard', nil, 'copy to clipboard'
-        c.option '--to /path/to/file', String, 'for binary file'
 
         c.action do |args, options|
-          abort "name is missing" unless args.length == 1
-          name = args.first
-
-          options.default :keystore => Config.default['keystore']
-          keystore = Config.get_keystore(options.keystore)
-
-          begin
-            secret = Secret.read_secret keystore, name
-
-            if (options.to)
-              File.open(options.to, 'w') { |file| file.write(secret) }
-              say "stored to #{options.to}"
-            else
-              say secret unless options.clipboard
-              Clipboard.copy secret if options.clipboard
-            end
-
-          rescue
-            abort "unable to find #{name}"
-          end
+          keystore = @preferences.keystore(options.keystore)
+          text = STDIN.read
+          OutputFactory.create(options).render_translate keystore, text
         end
-        alias_command :read, :"read-secret"
-        alias_command :get, :"read-secret"
       end
 
-      command :"remove-secret" do |c|
-        c.syntax      = 'leeloo remove <name>'
-        c.description = "Remove a secret from a keystore"
+      command :remove do |c|
+        c.syntax      = 'leeloo delete <name>'
+        c.description = "Delete a secret from a keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
           abort "name is missing" unless args.length == 1
           name = args.first
 
-          options.default :keystore => Config.default['keystore']
-          keystore = Config.get_keystore(options.keystore)
-
-          begin
-            Secret.delete_secret keystore, name
-            say "#{name} removed successfully"
-          rescue
-            abort "unable to find #{name}"
-          end
+          keystore = @preferences.keystore(options.keystore)
+          secret = keystore.secret_from_name(name)
+          secret.erase
         end
-        alias_command :remove, :"remove-secret"
-        alias_command :delete, :"remove-secret"
-        alias_command :erase, :"remove-secret"
       end
+
+      command :sync do |c|
+        c.syntax      = 'leeloo sync'
+        c.description = "Synchronize a keystore"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          keystore = @preferences.keystore(options.keystore)
+          keystore.sync
+        end
+      end
+
+      command :init do |c|
+        c.syntax      = 'leeloo init'
+        c.description = "Initialize a keystore"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          keystore = @preferences.keystore(options.keystore)
+          keystore.init
+        end
+      end
+
     end
   end
 end
