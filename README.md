@@ -10,8 +10,19 @@ Leeloo is based on [GPG](https://gnupg.org/) and [Git](https://git-scm.com/). _(
 ## How to install leeloo ?
 
 ```
-$> sudo apt-get install ruby ruby-dev
+$> sudo apt install ruby ruby-dev ruby-gpgme
 $> sudo gem install leeloo
+```
+
+## How to setup it ?
+
+```
+# if necessary, configure GIT
+$> git config --global user.email "you@example.com"
+$> git config --global user.name "Your Name"
+
+# if necessary, create a private GPG key
+$> gpg2 --gen-key
 ```
 
 ## How to use it ?
