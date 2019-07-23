@@ -56,6 +56,10 @@ module Leeloo
       # footprint a given secret path
     end
 
+    def secret_from_footprint footprint
+      # returns a secret object
+    end
+
     def == keystore
       self.name == keystore.name
     end
@@ -102,6 +106,14 @@ module Leeloo
       { :footprint => secret.footprint, :keystore => self.name, :secret => secret.name }
     end
 
+    def secret_from_footprint footprint
+      secret = secret_from_name footprint[:secret]
+      unless secret.footprint == footprint[:footprint]
+        raise "footprint is not valid"
+      end
+      secret
+    end
+
   end
 
   class GpgPrivateLocalFileSystemKeystore < PrivateLocalFileSystemKeystore
@@ -134,6 +146,15 @@ module Leeloo
       footprint[:sign] = Base64.strict_encode64 GPGME::Crypto.new.sign(footprint[:footprint]).to_s
       footprint
     end
+
+    def secret_from_footprint footprint
+      data = GPGME::Crypto.new.verify(Base64.strict_decode64 footprint[:sign]) { |signature| signature.valid? }
+      if data.read == footprint[:footprint]
+        super footprint
+      else
+        raise "signature is not valid"
+      end
+    end
   end
 
   class GitKeystoreDecorator < Keystore
@@ -165,6 +186,10 @@ module Leeloo
 
     def footprint element
       @keystore.footprint element
+    end
+
+    def secret_from_footprint footprint
+      @keystore.secret_from_footprint footprint
     end
 
     def sync

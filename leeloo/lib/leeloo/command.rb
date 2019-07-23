@@ -182,6 +182,9 @@ module Leeloo
           footprint = keystore.footprint name
 
           OutputFactory.create(options).render_footprint footprint
+          
+          # TODO: add http server
+          OutputFactory.create(options).render_secret keystore.secret_from_footprint(footprint)
         end
       end
 
