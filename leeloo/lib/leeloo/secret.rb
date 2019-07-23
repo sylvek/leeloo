@@ -1,5 +1,6 @@
 require 'gpgme'
 require 'fileutils'
+require 'digest'
 
 module Leeloo
   class Secret
@@ -26,6 +27,9 @@ module Leeloo
       # erase the secret
     end
 
+    def footprint
+      # a footprint is a token proving the authenticity of a secret
+    end
   end
 
   class LocalFileSystemSecret < Secret
@@ -48,6 +52,13 @@ module Leeloo
 
     def erase
       File.delete @pathname
+    end
+
+    def footprint
+      secret = File.read @pathname
+      md5 = Digest::MD5.new
+      md5 << secret
+      md5.hexdigest
     end
 
   end
@@ -86,6 +97,10 @@ module Leeloo
 
     def read
       @secret.read
+    end
+
+    def footprint
+      @secret.footprint
     end
 
     def write phrase

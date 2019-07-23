@@ -1,6 +1,7 @@
 require 'clipboard'
 require 'tty-table'
 require 'tty-tree'
+require 'json'
 
 module Leeloo
 
@@ -16,6 +17,9 @@ module Leeloo
         end
 
         def render_text text
+        end
+
+        def render_footprint footprint
         end
     end
 
@@ -39,6 +43,10 @@ module Leeloo
 
         def render_text text
             puts text
+        end
+
+        def render_footprint footprint
+            puts footprint.to_json
         end
     end
 

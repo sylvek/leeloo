@@ -169,6 +169,22 @@ module Leeloo
         end
       end
 
+      command :share do |c|
+        c.syntax      = 'leeloo share <name>'
+        c.description = "share a secret with someone"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          abort "name is missing" unless args.length == 1
+          name = args.first
+
+          keystore = @preferences.keystore(options.keystore)
+          footprint = keystore.footprint name
+
+          OutputFactory.create(options).render_footprint footprint
+        end
+      end
+
     end
   end
 end

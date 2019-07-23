@@ -1,6 +1,7 @@
 require 'gpgme'
 require 'fileutils'
 require 'git'
+require 'base64'
 
 module Leeloo
 
@@ -51,6 +52,10 @@ module Leeloo
       # initialize the keystore
     end
 
+    def footprint name
+      # footprint a given secret path
+    end
+
     def == keystore
       self.name == keystore.name
     end
@@ -92,6 +97,11 @@ module Leeloo
       secret_of "#{path}/secrets/#{name}"
     end
 
+    def footprint name
+      secret = secret_from_name name
+      { :footprint => secret.footprint, :keystore => self.name, :secret => secret.name }
+    end
+
   end
 
   class GpgPrivateLocalFileSystemKeystore < PrivateLocalFileSystemKeystore
@@ -119,6 +129,11 @@ module Leeloo
       secret_of "#{path}/secrets/#{name}.gpg"
     end
 
+    def footprint name
+      footprint = super name
+      footprint[:sign] = Base64.strict_encode64 GPGME::Crypto.new.sign(footprint[:footprint]).to_s
+      footprint
+    end
   end
 
   class GitKeystoreDecorator < Keystore
@@ -146,6 +161,10 @@ module Leeloo
 
     def path
       @keystore.path
+    end
+
+    def footprint element
+      @keystore.footprint element
     end
 
     def sync
