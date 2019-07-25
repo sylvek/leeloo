@@ -103,12 +103,12 @@ module Leeloo
 
     def footprint name
       secret = secret_from_name name
-      { :footprint => secret.footprint, :keystore => self.name, :secret => secret.name }
+      { "footprint" => secret.footprint, "keystore" => self.name, "secret" => secret.name }
     end
 
     def secret_from_footprint footprint
-      secret = secret_from_name footprint[:secret]
-      unless secret.footprint == footprint[:footprint]
+      secret = secret_from_name footprint["secret"]
+      unless secret.footprint == footprint["footprint"]
         raise "footprint is not valid"
       end
       secret
@@ -143,13 +143,13 @@ module Leeloo
 
     def footprint name
       footprint = super name
-      footprint[:sign] = Base64.strict_encode64 GPGME::Crypto.new.sign(footprint[:footprint]).to_s
+      footprint["sign"] = Base64.strict_encode64 GPGME::Crypto.new.sign(footprint["footprint"]).to_s
       footprint
     end
 
     def secret_from_footprint footprint
-      data = GPGME::Crypto.new.verify(Base64.strict_decode64 footprint[:sign]) { |signature| signature.valid? }
-      if data.read == footprint[:footprint]
+      data = GPGME::Crypto.new.verify(Base64.strict_decode64 footprint["sign"]) { |signature| signature.valid? }
+      if data.read == footprint["footprint"]
         super footprint
       else
         raise "signature is not valid"

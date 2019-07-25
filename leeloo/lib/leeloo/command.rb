@@ -182,9 +182,7 @@ module Leeloo
           footprint = keystore.footprint name
 
           OutputFactory.create(options).render_footprint footprint
-          
-          Server.new.start
-          OutputFactory.create(options).render_secret keystore.secret_from_footprint(footprint)
+          Server.new.start @preferences
         end
       end
 

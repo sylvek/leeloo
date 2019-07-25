@@ -1,27 +1,28 @@
-require 'socket'
+require 'webrick'
+require 'json'
+require 'base64'
 
 class Server
-    def initialize
-        @server = TCPServer.new('localhost', 2345)
-    end
 
-    def start
-        Signal.trap("INT") do
-            abort "ciao"
+    def start preferences
+        server = WEBrick::HTTPServer.new :Port => 8000
+        server.mount_proc '/' do |req, res|
+            query = req.query()["q"] || req.body()
+            if query
+                begin
+                    body = JSON.parse(Base64.strict_decode64 query)
+                    key = body["body"] ? JSON.parse(body["body"]) : body
+                    res.body = preferences.keystore(key["keystore"]).secret_from_footprint(key).read.to_s
+                rescue => exception
+                    puts exception
+                    res.status = 400
+                end
+            else
+                res.status = 400
+            end
         end
 
-        loop do
-            socket = @server.accept
-            request = socket.gets
-            STDERR.puts request
-            response = "Hello World!\n"
-            socket.print "HTTP/1.1 200 OK\r\n" +
-               "Content-Type: text/plain\r\n" +
-               "Content-Length: #{response.bytesize}\r\n" +
-               "Connection: close\r\n"
-            socket.print "\r\n"
-            socket.print response
-            socket.close
-        end
+        trap 'INT' do server.shutdown end
+        server.start
     end
 end

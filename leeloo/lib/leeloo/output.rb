@@ -2,6 +2,7 @@ require 'clipboard'
 require 'tty-table'
 require 'tty-tree'
 require 'json'
+require 'base64'
 
 module Leeloo
 
@@ -46,7 +47,7 @@ module Leeloo
         end
 
         def render_footprint footprint
-            puts footprint.to_json
+            puts "Please share this url : http://localhost:8000\?q=#{Base64.strict_encode64 footprint.to_json}"
         end
     end
 
@@ -129,6 +130,10 @@ module Leeloo
             end
             wait.join
             Clipboard.clear
+        end
+
+        def render_footprint footprint
+            @output.render_footprint footprint
         end
     end
 
