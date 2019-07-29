@@ -3,6 +3,7 @@ require 'tty-table'
 require 'tty-tree'
 require 'json'
 require 'base64'
+require 'socket'
 
 module Leeloo
 
@@ -21,6 +22,9 @@ module Leeloo
         end
 
         def render_footprint footprint
+        end
+
+        def render_share footprint
         end
     end
 
@@ -47,7 +51,17 @@ module Leeloo
         end
 
         def render_footprint footprint
-            puts "Please share this url : http://localhost:8000\?q=#{Base64.strict_encode64 footprint.to_json}"
+            puts Base64.strict_encode64 footprint.to_json
+        end
+
+        def render_share footprint
+            puts """
+            Please share this url : 
+            http://your_ip:8000\?q=#{Base64.strict_encode64 footprint.to_json}
+
+            run ssh -R:localhost:8000 ssh.localhost.run
+            if you want to share your password through tunneling
+            """
         end
     end
 
@@ -134,6 +148,10 @@ module Leeloo
 
         def render_footprint footprint
             @output.render_footprint footprint
+        end
+
+        def render_share footprint
+            @output.render_share footprint
         end
     end
 

@@ -186,6 +186,31 @@ module Leeloo
         end
       end
 
+      command :token do |c|
+        c.syntax      = 'leeloo token <name>'
+        c.description = "generate an access token for a given secret"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          abort "name is missing" unless args.length == 1
+          name = args.first
+
+          keystore = @preferences.keystore(options.keystore)
+          footprint = keystore.footprint name
+
+          OutputFactory.create(options).render_footprint footprint
+        end
+      end
+
+      command :server do |c|
+        c.syntax      = 'leeloo server'
+        c.description = "start a server access token"
+
+        c.action do |args, options|
+          Server.new.start @preferences
+        end
+      end
+
     end
   end
 end
