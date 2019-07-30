@@ -57,6 +57,22 @@ module Leeloo
         end
       end
 
+      command :search do |c|
+        c.syntax      = 'leeloo search name'
+        c.description = "Display secrets containing name pattern"
+        c.option '--ascii', nil, 'display secrets without unicode tree'
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          abort "name is missing" unless args.length == 1
+          name = args.first
+
+          keystore = @preferences.keystore(options.keystore)
+          secrets = keystore.secrets.select { |secret| secret.name.downcase.include? name.downcase } || []
+          OutputFactory.create(options).render_secrets secrets
+        end
+      end
+
       command :keystore do |c|
         c.syntax      = 'leeloo keystores'
         c.description = "Display current keystores"
