@@ -6,12 +6,12 @@ require "leeloo/version"
 Gem::Specification.new do |spec|
   spec.name          = "leeloo"
   spec.version       = Leeloo::VERSION
-  spec.authors       = ["Sylvek"]
+  spec.authors       = ["sylvek"]
   spec.email         = ["smaucourt@gmail.com"]
 
   spec.summary       = Leeloo::DESCRIPTION
   spec.description   = Leeloo::DESCRIPTION
-  spec.homepage      = "https://github.com/sylvek"
+  spec.homepage      = "https://github.com/sylvek/leeloo"
   spec.license       = "MIT"
 
   spec.required_ruby_version = '>= 2.0.0'
