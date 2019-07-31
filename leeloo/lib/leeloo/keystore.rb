@@ -8,7 +8,8 @@ module Leeloo
         keystore_created = nil
         case keystore["cypher"]
         when "gpg"
-            keystore_created = GpgPrivateLocalFileSystemKeystore.new keystore["name"], keystore["path"] 
+            recipient = GpgPrivateLocalFileSystemRecipient.new keystore["path"]
+            keystore_created = GpgPrivateLocalFileSystemKeystore.new keystore["name"], keystore["path"], recipient
         else
             keystore_created = PrivateLocalFileSystemKeystore.new keystore["name"], keystore["path"]
         end
@@ -97,9 +98,9 @@ module Leeloo
 
     attr_reader :recipient
 
-    def initialize name, path
+    def initialize name, path, recipient
       super name, path
-      @recipient = GpgPrivateLocalFileSystemRecipient.new(path)
+      @recipient = recipient
     end
 
     def init
@@ -118,7 +119,7 @@ module Leeloo
 
   end
 
-  class GitKeystoreDecorator < Keystore
+  class GitKeystoreDecorator < PrivateLocalFileSystemKeystore
     def initialize keystore
       @keystore = keystore
       Git.init @keystore.path
@@ -146,6 +147,7 @@ module Leeloo
     end
 
     def recipient
+      raise "recipient is only allowed for GPG Keystore" unless @keystore.is_a? GpgPrivateLocalFileSystemKeystore
       @keystore.recipient
     end
 
