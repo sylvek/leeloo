@@ -15,6 +15,12 @@ module Leeloo
         def render_secret secret
         end
 
+        def render_key key
+        end
+
+        def render_keys keys
+        end
+
         def render_translate keystore, text
         end
     end
@@ -35,6 +41,14 @@ module Leeloo
             rescue => exception
                 puts "#{secret.name} doesn't exist"
             end
+        end
+
+        def render_key key
+            puts key
+        end
+
+        def render_keys keys
+            keys.each {|key| puts key}
         end
 
         def render_translate keystore, text
@@ -101,6 +115,14 @@ module Leeloo
 
         def render_preferences preferences
             @output.render_preferences preferences
+        end
+
+        def render_key key
+            @output.render_key key
+        end
+
+        def render_keys keys
+            @output.render_keys keys
         end
 
         def render_secrets secrets

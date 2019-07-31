@@ -85,7 +85,7 @@ module Leeloo
 
       command "keystore add" do |c|
         c.syntax      = 'leeloo keystore add <name> <path/to/keystore>'
-        c.description = "add a keystore"
+        c.description = "Add a keystore"
 
         c.action do |args, options|
           abort "name or path is missing" unless args.length == 2
@@ -98,13 +98,54 @@ module Leeloo
 
       command "keystore default" do |c|
         c.syntax      = 'leeloo keystore default name'
-        c.description = "set the default keystore"
+        c.description = "Set the default keystore"
 
         c.action do |args, options|
           abort "name is missing" unless args.length == 1
 
           @preferences.set_default_keystore args.first
           OutputFactory.create(options).render_preferences @preferences
+        end
+      end
+
+      command :key do |c|
+        c.syntax      = 'leeloo key'
+        c.description = "Display current keys for a given keystore"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          keystore = @preferences.keystore(options.keystore)
+          OutputFactory.create(options).render_keys keystore.recipient.keys
+        end
+      end
+
+      command "key add" do |c|
+        c.syntax      = 'leeloo key add name@domain.com'
+        c.description = "Add a key into a given keystore"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          abort "name is missing" unless args.length == 1
+          keystore = @preferences.keystore(options.keystore)
+
+          recipient = keystore.recipient
+          recipient.add args.first
+          OutputFactory.create(options).render_keys recipient.keys
+        end
+      end
+
+      command "key remove" do |c|
+        c.syntax      = 'leeloo key remove name@domain.com'
+        c.description = "Remove a key into a given keystore"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          abort "name is missing" unless args.length == 1
+          keystore = @preferences.keystore(options.keystore)
+
+          recipient = keystore.recipient
+          recipient.remove args.first
+          OutputFactory.create(options).render_keys recipient.keys
         end
       end
 
@@ -157,7 +198,7 @@ module Leeloo
 
       command :translate do |c|
         c.syntax      = 'leeloo translate'
-        c.description = "translate stdin by replacing key ${my/secret} by the current value"
+        c.description = "Translate stdin by replacing key ${my/secret} by the current value"
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|

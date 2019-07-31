@@ -1,4 +1,3 @@
-require 'gpgme'
 require 'fileutils'
 require 'git'
 
@@ -96,23 +95,21 @@ module Leeloo
 
   class GpgPrivateLocalFileSystemKeystore < PrivateLocalFileSystemKeystore
 
+    attr_reader :recipient
+
     def initialize name, path
       super name, path
-      FileUtils.mkdir_p "#{@path}/keys"
-
-      @recipients = []
-      Dir.glob("#{path}/keys/*") { |key| @recipients << File.basename(key) }
-      @recipients.each { |key| GPGME::Key.import(File.open("#{path}/keys/#{key}")) }
+      @recipient = GpgPrivateLocalFileSystemRecipient.new(path)
     end
 
     def init
       super
-      GPGME::Key.find(:public, nil, ).each { |key| key.export(:output => File.open("#{path}/keys/#{key.uids.first.email}", "w+")) }
+      @recipient.add
     end
 
     def secret_of path
       name = path.gsub("#{@path}/secrets/", "").gsub(".gpg", "")
-      GpgLocalFileSystemSecret.new path, name, @recipients
+      GpgLocalFileSystemSecret.new path, name, @recipient.keys
     end
 
     def secret_from_name name
@@ -148,6 +145,10 @@ module Leeloo
       @keystore.path
     end
 
+    def recipient
+      @keystore.recipient
+    end
+
     def sync
       @git.pull
       @keystore.sync
@@ -158,6 +159,10 @@ module Leeloo
       @keystore.init
       @git.add
       @git.commit "keystore #{@keystore.name} added"
+    end
+
+    def is_a? instance
+      @keystore.is_a? instance
     end
 
   end
