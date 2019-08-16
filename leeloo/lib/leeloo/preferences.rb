@@ -88,6 +88,11 @@ module Leeloo
             File.write("#{@path}/keystores", @keystores.to_yaml)
         end
 
+        def remove_keystore keystore
+            super keystore
+            File.write("#{@path}/keystores", @keystores.to_yaml)
+        end
+
     end
 
 end
