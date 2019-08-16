@@ -32,6 +32,12 @@ module Leeloo
                 @keystores << keystore
             end
         end
+
+        def remove_keystore keystore
+            if @keystores.include? keystore
+                @keystores.delete keystore
+            end
+        end
     end
 
     class PrivateLocalFileSystemPreferences < Preferences
