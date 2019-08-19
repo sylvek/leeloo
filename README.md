@@ -5,13 +5,23 @@ collaborative password manager
 
 Leeloo known as the 5th element is a humble clone of [password-store](https://www.passwordstore.org/) _(and compatible with it)_ written in Ruby with ambition to offer a powerful collaborative password manager.
 
-Leeloo is based on [GPG](https://gnupg.org/) and [Git](https://git-scm.com/). _(you have to get a private GPG key and Git installed before, [more details here](https://www.gnupg.org/gph/en/manual/c14.html))_
+Leeloo is based on [GPG](https://gnupg.org/) and [Git](https://git-scm.com/). _(you need a private GPG key ! - [more details here](https://www.gnupg.org/gph/en/manual/c14.html))_
 
 ## How to install leeloo ?
+
+### On Linux
 
 ```
 $> sudo apt install ruby ruby-dev ruby-gpgme
 $> sudo gem install leeloo
+```
+
+### On Macos
+
+```
+$> brew tap sylvek/leeloo-brew
+$> brew install leeloo
+$> gem install leeloo
 ```
 
 ## How to setup it ?
@@ -39,8 +49,8 @@ $> leeloo keystore
 |private|/Users/sylvek/.leeloo/private |*      |
 +-------+------------------------------+-------+
 
-$> leeloo keystore add password-store ~/Desktop/test
-# will add password-store keystore
+$> leeloo keystore add test ~/Desktop/test
+# will add test's keystore
 +-------+------------------------------+-------+
 |Name   |Path                          |Default|
 +-------+------------------------------+-------+
@@ -87,6 +97,8 @@ By default, a new created keystore comes with all registered public keys on your
 
 
 ## ZSH completion support !
+
+_installed with brew on Macos_
 
 To use zsh-completion with leeloo you just have to copy _leeloo file into $HOME/.oh-my-zsh/completions/_leeloo
 
