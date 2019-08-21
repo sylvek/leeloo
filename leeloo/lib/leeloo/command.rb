@@ -43,11 +43,29 @@ module Leeloo
       program :help, 'GitHub', 'https://github.com/sylvek'
       program :help_formatter, :compact
 
-      default_command :"list"
+      default_command :default
+
+      command :default do |c|
+        c.syntax      = 'leeloo <name>'
+        c.description = "Display a given secret name or a secrets list"
+        c.option '--ascii', nil, 'display secrets without unicode tree'
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          keystore = @preferences.keystore(options.keystore)
+          if args.first
+            name = args.first
+            secret = keystore.secret_from_name(name)
+            OutputFactory.create(options).render_secret secret
+          else
+            OutputFactory.create(options).render_secrets keystore.secrets
+          end
+        end
+      end
 
       command :list do |c|
         c.syntax      = 'leeloo list [options]'
-        c.description = "Display secrets list of keystore"
+        c.description = "Display secrets list"
         c.option '--ascii', nil, 'display secrets without unicode tree'
         c.option '--keystore STRING', String, 'a selected keystore'
 
