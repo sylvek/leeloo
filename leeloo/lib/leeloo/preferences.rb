@@ -33,8 +33,9 @@ module Leeloo
             end
         end
 
-        def remove_keystore keystore
-            if @keystores.include? keystore
+        def remove_keystore name
+            keystore = @keystores.find { |k| k["name"] == name }
+            if keystore !=nil
                 @keystores.delete keystore
             end
         end
@@ -88,8 +89,8 @@ module Leeloo
             File.write("#{@path}/keystores", @keystores.to_yaml)
         end
 
-        def remove_keystore keystore
-            super keystore
+        def remove_keystore name
+            super name
             File.write("#{@path}/keystores", @keystores.to_yaml)
         end
 
