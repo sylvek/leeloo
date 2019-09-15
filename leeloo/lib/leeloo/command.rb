@@ -83,6 +83,17 @@ module Leeloo
         end
       end
 
+      command "keystore remove" do |c|
+        c.syntax      = 'leeloo keystore remove <name>'
+        c.description = "remove a keystore (path/to/keystore is not destroyed)"
+
+        c.action do |args, options|
+          abort "name is missing" unless args.length == 1
+          @preferences.remove_keystore args.first
+          OutputFactory.create(options).render_preferences @preferences
+        end
+      end
+
       command "keystore add" do |c|
         c.syntax      = 'leeloo keystore add <name> <path/to/keystore>'
         c.description = "add a keystore"

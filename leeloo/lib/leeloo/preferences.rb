@@ -32,6 +32,13 @@ module Leeloo
                 @keystores << keystore
             end
         end
+
+        def remove_keystore name
+            keystore = @keystores.find { |k| k["name"] == name }
+            if keystore !=nil
+                @keystores.delete keystore
+            end
+        end
     end
 
     class PrivateLocalFileSystemPreferences < Preferences
@@ -79,6 +86,11 @@ module Leeloo
         def add_keystore keystore
             super keystore
             FileUtils.mkdir_p keystore["path"]
+            File.write("#{@path}/keystores", @keystores.to_yaml)
+        end
+
+        def remove_keystore name
+            super name
             File.write("#{@path}/keystores", @keystores.to_yaml)
         end
 
