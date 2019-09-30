@@ -15,7 +15,7 @@ module Leeloo
         def render_secret secret
         end
 
-        def render_translate keystore, text
+        def render_text text
         end
     end
 
@@ -37,14 +37,7 @@ module Leeloo
             end
         end
 
-        def render_translate keystore, text
-            text.scan(/\$\{.*\}/).each do |secret|
-                begin
-                   text.gsub! secret, (keystore.secret_from_name(secret[2..-2])).read.to_s.strip 
-                rescue => exception
-                    # silent
-                end
-            end
+        def render_text text
             puts text
         end
     end
@@ -107,16 +100,16 @@ module Leeloo
             @output.render_secrets secrets
         end
 
-        def render_translate keystore, text
-            @output.render_translate keystore, text
+        def render_text text
+            @output.render_text text
         end
 
         def render_secret secret
 
             Signal.trap("INT") do
                 Clipboard.clear
-                abort "ciao"
-              end
+                abort "cleared"
+            end
 
             Clipboard.copy secret.read
             wait = Thread.new do

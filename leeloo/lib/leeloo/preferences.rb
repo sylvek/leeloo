@@ -70,8 +70,8 @@ module Leeloo
             self
         end
 
-        def keystore_of keystore_name
-            keystore = @keystores.find { |keystore| keystore["name"] == keystore_name }
+        def keystore_of name
+            keystore = @keystores.find { |keystore| keystore["name"] == name }
             KeystoreFactory::create keystore
         end
 

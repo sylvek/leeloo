@@ -9,28 +9,8 @@ end
 
 module Leeloo
 
-  class OutputFactory
-    def self.create options
-      output = nil
-      if options.ascii
-        output = Ascii.new
-      else
-        output = Terminal.new
-      end
-      if options.clipboard
-        ClipboardOutputDecorator.new output
-      else
-        output
-      end
-    end
-  end
-
   class Command
     include Commander::Methods
-
-    def initialize
-      @preferences = PrivateLocalFileSystemPreferences.new.load
-    end
 
     def run
       program :name, 'leeloo'
@@ -52,8 +32,7 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
-          keystore = @preferences.keystore(options.keystore)
-          OutputFactory.create(options).render_secrets keystore.secrets
+          SecretsController.new(options).display
         end
       end
 
@@ -64,12 +43,9 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
-          abort "name is missing" unless args.length == 1
-          name = args.first
-
-          keystore = @preferences.keystore(options.keystore)
-          secrets = keystore.secrets.select { |secret| secret.name.downcase.include? name.downcase } || []
-          OutputFactory.create(options).render_secrets secrets
+          ctl = SecretsController.new(options)
+          ctl.search(args)
+          ctl.display
         end
       end
 
@@ -79,7 +55,7 @@ module Leeloo
         c.option '--ascii', nil, 'display secrets without unicode tree'
 
         c.action do |args, options|
-          OutputFactory.create(options).render_preferences @preferences
+          KeystoreController.new(options).display
         end
       end
 
@@ -88,9 +64,9 @@ module Leeloo
         c.description = "remove a keystore (path/to/keystore is not destroyed)"
 
         c.action do |args, options|
-          abort "name is missing" unless args.length == 1
-          @preferences.remove_keystore args.first
-          OutputFactory.create(options).render_preferences @preferences
+          ctl = KeystoreController.new(options)
+          ctl.remove(args)
+          ctl.display
         end
       end
 
@@ -99,11 +75,9 @@ module Leeloo
         c.description = "add a keystore"
 
         c.action do |args, options|
-          abort "name or path is missing" unless args.length == 2
-
-          @preferences.add_keystore({"name" => args.first, "path" => args.last, "cypher" => "gpg", "vc" => "git"})
-          @preferences.keystore(args.first).init
-          OutputFactory.create(options).render_preferences @preferences
+          ctl = KeystoreController.new(options)
+          ctl.add(args)
+          ctl.display
         end
       end
 
@@ -112,10 +86,9 @@ module Leeloo
         c.description = "set the default keystore"
 
         c.action do |args, options|
-          abort "name is missing" unless args.length == 1
-
-          @preferences.set_default_keystore args.first
-          OutputFactory.create(options).render_preferences @preferences
+          ctl = KeystoreController.new(options)
+          ctl.set_default(args)
+          ctl.display
         end
       end
 
@@ -127,12 +100,9 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
-          abort "name is missing" unless args.length == 1
-          name = args.first
-
-          keystore = @preferences.keystore(options.keystore)
-          secret = keystore.secret_from_name(name)
-          OutputFactory.create(options).render_secret secret
+          ctl = SecretController.new(options)
+          ctl.read(args)
+          ctl.display
         end
       end
 
@@ -145,24 +115,9 @@ module Leeloo
         c.option '--clipboard', nil, 'copy to clipboard'
 
         c.action do |args, options|
-          abort "name is missing" unless args.length == 1
-          name = args.first
-          phrase = nil
-
-          phrase = STDIN.read if options.stdin
-          phrase = SecureRandom.base64(32).truncate(options.generate.to_i) if options.generate
-
-          unless phrase
-            phrase  = password "secret"
-            confirm = password "confirm it"
-            abort "not the same secret" unless phrase == confirm
-          end
-
-          keystore = @preferences.keystore(options.keystore)
-          secret = keystore.secret_from_name(name)
-          secret.write(phrase)
-
-          OutputFactory.create(options).render_secret secret
+          ctl = SecretController.new(options)
+          ctl.write(args)
+          ctl.display
         end
       end
 
@@ -172,9 +127,9 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
-          keystore = @preferences.keystore(options.keystore)
-          text = STDIN.read
-          OutputFactory.create(options).render_translate keystore, text
+          ctl = TranslateController.new(options)
+          ctl.translate(args)
+          ctl.display
         end
       end
 
@@ -184,12 +139,9 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
-          abort "name is missing" unless args.length == 1
-          name = args.first
-
-          keystore = @preferences.keystore(options.keystore)
-          secret = keystore.secret_from_name(name)
-          secret.erase
+          ctl = SecretController.new(options)
+          ctl.remove(args)
+          ctl.display
         end
       end
 
@@ -199,8 +151,9 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
-          keystore = @preferences.keystore(options.keystore)
-          keystore.sync
+          ctl = KeystoreController.new(options)
+          ctl.sync(args)
+          ctl.display
         end
       end
 
@@ -210,8 +163,9 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
-          keystore = @preferences.keystore(options.keystore)
-          keystore.init
+          ctl = KeystoreController.new(options)
+          ctl.init(args)
+          ctl.display
         end
       end
 

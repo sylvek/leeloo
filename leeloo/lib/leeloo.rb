@@ -1,4 +1,5 @@
 require 'leeloo/version'
+require 'leeloo/controller'
 require 'leeloo/command'
 require 'leeloo/preferences'
 require 'leeloo/keystore'
