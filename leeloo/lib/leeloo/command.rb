@@ -96,7 +96,7 @@ module Leeloo
           abort "name is missing" unless args.length == 1
           name = args.first
           ctl = KeystoreController.new(options)
-          ctl.set_default(args)
+          ctl.set_default(name)
           ctl.display
         end
       end
@@ -112,7 +112,7 @@ module Leeloo
           abort "name is missing" unless args.length == 1
           name = args.first
           ctl = SecretController.new(options)
-          ctl.read(args)
+          ctl.read(name)
           ctl.display
         end
       end
