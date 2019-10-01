@@ -51,17 +51,8 @@ module Leeloo
         end
 
         def render_footprint footprint
+            puts "token:"
             puts Base64.strict_encode64 footprint.to_json
-        end
-
-        def render_share footprint
-            puts """
-            Please share this url : 
-            http://your_ip:8000\?q=#{Base64.strict_encode64 footprint.to_json}
-
-            run ssh -R:localhost:8000 ssh.localhost.run
-            if you want to share your password through tunneling
-            """
         end
     end
 

@@ -175,14 +175,10 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
-          abort "name is missing" unless args.length == 1
-          name = args.first
-
-          keystore = @preferences.keystore(options.keystore)
-          footprint = keystore.footprint name
-
-          OutputFactory.create(options).render_footprint footprint
-          Server.new.start @preferences
+          ctl = ShareController.new(options)
+          ctl.token(args)
+          ctl.display
+          ctl.start_server
         end
       end
 
@@ -192,13 +188,9 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
-          abort "name is missing" unless args.length == 1
-          name = args.first
-
-          keystore = @preferences.keystore(options.keystore)
-          footprint = keystore.footprint name
-
-          OutputFactory.create(options).render_footprint footprint
+          ctl = ShareController.new(options)
+          ctl.token(args)
+          ctl.display
         end
       end
 
@@ -207,7 +199,8 @@ module Leeloo
         c.description = "start a server access token"
 
         c.action do |args, options|
-          Server.new.start @preferences
+          ctl = ShareController.new(options)
+          ctl.start_server
         end
       end
 

@@ -23,6 +23,7 @@ module Leeloo
 	class PrivateLocalFileSystemController < Controller
 		def initialize options
 			@preferences = PrivateLocalFileSystemPreferences.new.load
+			@keystore = @preferences.keystore(options.keystore)
 			@output = OutputFactory.create(options)
 			@options = options
 		end
@@ -44,10 +45,6 @@ module Leeloo
 	end
 
 	class SecretController < PrivateLocalFileSystemController
-		def initialize options
-			super options
-			@keystore = @preferences.keystore(@options.keystore)
-		end
 		def read args
 			abort "name is missing" unless args.length == 1
 			name = args.first
@@ -82,10 +79,6 @@ module Leeloo
 	end
 
 	class TranslateController < PrivateLocalFileSystemController
-		def initialize options
-			super options
-			@keystore = @preferences.keystore(@options.keystore)
-		end
 		def translate args
 			@text = STDIN.read
 			@text.scan(/\$\{.*\}/).each do |secret|
@@ -124,5 +117,19 @@ module Leeloo
 		def display
 			@output.render_preferences @preferences
 		end
-	end
+    end
+
+    class ShareController < PrivateLocalFileSystemController
+        def token args
+            abort "name is missing" unless args.length == 1
+            name = args.first
+            @footprint = @keystore.footprint(name)
+        end
+        def start_server
+            Server.new.start @preferences
+        end
+        def display
+            @output.render_footprint @footprint
+        end
+    end
 end
