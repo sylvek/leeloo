@@ -101,7 +101,7 @@ module Leeloo
       secret_of "#{path}/secrets/#{name}"
     end
 
-    def footprint name
+    def footprint_of name
       secret = secret_from_name name
       { "footprint" => secret.footprint, "keystore" => self.name, "secret" => secret.name }
     end
@@ -141,7 +141,7 @@ module Leeloo
       secret_of "#{path}/secrets/#{name}.gpg"
     end
 
-    def footprint name
+    def footprint_of name
       footprint = super name
       footprint["sign"] = Base64.strict_encode64 GPGME::Crypto.new.sign(footprint["footprint"]).to_s
       footprint
@@ -184,8 +184,8 @@ module Leeloo
       @keystore.path
     end
 
-    def footprint element
-      @keystore.footprint element
+    def footprint_of element
+      @keystore.footprint_of element
     end
 
     def secret_from_footprint footprint

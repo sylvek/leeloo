@@ -110,7 +110,7 @@ module Leeloo
 
     class ShareController < PrivateLocalFileSystemController
         def token name
-            @footprint = @keystore.footprint(name)
+            @footprint = @keystore.footprint_of(name)
         end
         def start_server
             Server.new.start @preferences
