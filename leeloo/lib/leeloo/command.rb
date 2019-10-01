@@ -43,8 +43,10 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
+          abort "name is missing" unless args.length == 1
+          name = args.first
           ctl = SecretsController.new(options)
-          ctl.search(args)
+          ctl.search(name)
           ctl.display
         end
       end
@@ -63,9 +65,11 @@ module Leeloo
         c.syntax      = 'leeloo keystore remove <name>'
         c.description = "remove a keystore (path/to/keystore is not destroyed)"
 
-        c.action do |args, options|
+        c.action do |args, options|args
+          abort "name is missing" unless args.length == 1
+          name = args.first
           ctl = KeystoreController.new(options)
-          ctl.remove(args)
+          ctl.remove(name)
           ctl.display
         end
       end
@@ -75,8 +79,11 @@ module Leeloo
         c.description = "add a keystore"
 
         c.action do |args, options|
+          abort "name or path is missing" unless args.length == 2
+          name = args.first
+          path = args.last
           ctl = KeystoreController.new(options)
-          ctl.add(args)
+          ctl.add(name, path)
           ctl.display
         end
       end
@@ -86,6 +93,8 @@ module Leeloo
         c.description = "set the default keystore"
 
         c.action do |args, options|
+          abort "name is missing" unless args.length == 1
+          name = args.first
           ctl = KeystoreController.new(options)
           ctl.set_default(args)
           ctl.display
@@ -100,6 +109,8 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
+          abort "name is missing" unless args.length == 1
+          name = args.first
           ctl = SecretController.new(options)
           ctl.read(args)
           ctl.display
@@ -115,8 +126,10 @@ module Leeloo
         c.option '--clipboard', nil, 'copy to clipboard'
 
         c.action do |args, options|
+          abort "name is missing" unless args.length == 1
+          name = args.first
           ctl = SecretController.new(options)
-          ctl.write(args)
+          ctl.write(name)
           ctl.display
         end
       end
@@ -128,7 +141,7 @@ module Leeloo
 
         c.action do |args, options|
           ctl = TranslateController.new(options)
-          ctl.translate(args)
+          ctl.translate
           ctl.display
         end
       end
@@ -139,8 +152,10 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
+          abort "name is missing" unless args.length == 1
+          name = args.first
           ctl = SecretController.new(options)
-          ctl.remove(args)
+          ctl.remove(name)
           ctl.display
         end
       end
@@ -175,8 +190,10 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
+          abort "name is missing" unless args.length == 1
+          name = args.first
           ctl = ShareController.new(options)
-          ctl.token(args)
+          ctl.token(name)
           ctl.display
           ctl.start_server
         end
@@ -188,8 +205,10 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
+          abort "name is missing" unless args.length == 1
+          name = args.first
           ctl = ShareController.new(options)
-          ctl.token(args)
+          ctl.token(name)
           ctl.display
         end
       end

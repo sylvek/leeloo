@@ -34,9 +34,7 @@ module Leeloo
 			super options
 			@secrets = @preferences.keystore(@options.keystore).secrets
 		end
-		def search args
-			abort "name is missing" unless args.length == 1
-			name = args.first
+		def search name
 			@secrets = @secrets.select { |secret| secret.name.downcase.include? name.downcase } || []
 		end
 		def display
@@ -45,14 +43,10 @@ module Leeloo
 	end
 
 	class SecretController < PrivateLocalFileSystemController
-		def read args
-			abort "name is missing" unless args.length == 1
-			name = args.first
+		def read name
 			@secret = @keystore.secret_from_name(name)
 		end
-		def write args
-			abort "name is missing" unless args.length == 1
-			name = args.first
+		def write name
 			phrase = nil
 
 			phrase = STDIN.read if @options.stdin
@@ -67,9 +61,7 @@ module Leeloo
 			@secret = @keystore.secret_from_name(name)
 			@secret.write(phrase)
 		end
-		def remove args
-			abort "name is missing" unless args.length == 1
-			name = args.first
+		def remove name
 			@secret = @keystore.secret_from_name(name)
 			@secret.erase
 		end
@@ -79,7 +71,7 @@ module Leeloo
 	end
 
 	class TranslateController < PrivateLocalFileSystemController
-		def translate args
+		def translate
 			@text = STDIN.read
 			@text.scan(/\$\{.*\}/).each do |secret|
 				begin
@@ -95,18 +87,15 @@ module Leeloo
 	end
 
 	class KeystoreController < PrivateLocalFileSystemController
-		def add args
-			abort "name or path is missing" unless args.length == 2
-			@preferences.add_keystore({"name" => args.first, "path" => args.last, "cypher" => "gpg", "vc" => "git"})
-			@preferences.keystore(args.first).init
+		def add name, path
+			@preferences.add_keystore({"name" => name, "path" => path, "cypher" => "gpg", "vc" => "git"})
+			@preferences.keystore(name).init
 		end
-		def remove args
-			abort "name is missing" unless args.length == 1
-			@preferences.remove_keystore args.first
+		def remove name
+			@preferences.remove_keystore name
 		end
-		def set_default args
-			abort "name is missing" unless args.length == 1
-			@preferences.set_default_keystore args.first
+		def set_default name
+			@preferences.set_default_keystore name
 		end
 		def sync
 			@keystore.sync
@@ -120,9 +109,7 @@ module Leeloo
     end
 
     class ShareController < PrivateLocalFileSystemController
-        def token args
-            abort "name is missing" unless args.length == 1
-            name = args.first
+        def token name
             @footprint = @keystore.footprint(name)
         end
         def start_server
