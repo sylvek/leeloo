@@ -108,11 +108,11 @@ module Leeloo
 			abort "name is missing" unless args.length == 1
 			@preferences.set_default_keystore args.first
 		end
-		def sync args
-			@preferences.keystore(args.first).sync
+		def sync
+			@keystore.sync
 		end
-		def init args
-			@preferences.keystore(args.first).init
+		def init
+			@keystore.init
 		end
 		def display
 			@output.render_preferences @preferences

@@ -152,7 +152,7 @@ module Leeloo
 
         c.action do |args, options|
           ctl = KeystoreController.new(options)
-          ctl.sync(args)
+          ctl.sync
           ctl.display
         end
       end
@@ -164,7 +164,7 @@ module Leeloo
 
         c.action do |args, options|
           ctl = KeystoreController.new(options)
-          ctl.init(args)
+          ctl.init
           ctl.display
         end
       end
