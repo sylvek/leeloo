@@ -24,6 +24,8 @@ $> brew install leeloo
 $> gem install leeloo
 ```
 
+if some troubles with gpgme => `gem install gpgme -- --use-system-libraries`
+
 ## How to setup it ?
 
 ```
