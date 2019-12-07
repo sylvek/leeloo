@@ -34,8 +34,9 @@ module Leeloo
         end
 
         def remove_keystore name
+            abort "you can not remove default keystore" if name == @default
             keystore = @keystores.find { |k| k["name"] == name }
-            if keystore !=nil
+            if keystore != nil
                 @keystores.delete keystore
             end
         end
@@ -70,8 +71,8 @@ module Leeloo
             self
         end
 
-        def keystore_of keystore_name
-            keystore = @keystores.find { |keystore| keystore["name"] == keystore_name }
+        def keystore_of name
+            keystore = @keystores.find { |keystore| keystore["name"] == name }
             KeystoreFactory::create keystore
         end
 

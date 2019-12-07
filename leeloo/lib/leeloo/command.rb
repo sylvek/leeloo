@@ -9,28 +9,8 @@ end
 
 module Leeloo
 
-  class OutputFactory
-    def self.create options
-      output = nil
-      if options.ascii
-        output = Ascii.new
-      else
-        output = Terminal.new
-      end
-      if options.clipboard
-        ClipboardOutputDecorator.new output
-      else
-        output
-      end
-    end
-  end
-
   class Command
     include Commander::Methods
-
-    def initialize
-      @preferences = PrivateLocalFileSystemPreferences.new.load
-    end
 
     def run
       program :name, 'leeloo'
@@ -52,8 +32,7 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
-          keystore = @preferences.keystore(options.keystore)
-          OutputFactory.create(options).render_secrets keystore.secrets
+          SecretsController.new(options).display
         end
       end
 
@@ -66,10 +45,9 @@ module Leeloo
         c.action do |args, options|
           abort "name is missing" unless args.length == 1
           name = args.first
-
-          keystore = @preferences.keystore(options.keystore)
-          secrets = keystore.secrets.select { |secret| secret.name.downcase.include? name.downcase } || []
-          OutputFactory.create(options).render_secrets secrets
+          ctl = SecretsController.new(options)
+          ctl.search(name)
+          ctl.display
         end
       end
 
@@ -79,7 +57,7 @@ module Leeloo
         c.option '--ascii', nil, 'display secrets without unicode tree'
 
         c.action do |args, options|
-          OutputFactory.create(options).render_preferences @preferences
+          KeystoreController.new(options).display
         end
       end
 
@@ -87,10 +65,12 @@ module Leeloo
         c.syntax      = 'leeloo keystore remove <name>'
         c.description = "remove a keystore (path/to/keystore is not destroyed)"
 
-        c.action do |args, options|
+        c.action do |args, options|args
           abort "name is missing" unless args.length == 1
-          @preferences.remove_keystore args.first
-          OutputFactory.create(options).render_preferences @preferences
+          name = args.first
+          ctl = KeystoreController.new(options)
+          ctl.remove(name)
+          ctl.display
         end
       end
 
@@ -100,10 +80,11 @@ module Leeloo
 
         c.action do |args, options|
           abort "name or path is missing" unless args.length == 2
-
-          @preferences.add_keystore({"name" => args.first, "path" => args.last, "cypher" => "gpg", "vc" => "git"})
-          @preferences.keystore(args.first).init
-          OutputFactory.create(options).render_preferences @preferences
+          name = args.first
+          path = args.last
+          ctl = KeystoreController.new(options)
+          ctl.add(name, path)
+          ctl.display
         end
       end
 
@@ -113,9 +94,10 @@ module Leeloo
 
         c.action do |args, options|
           abort "name is missing" unless args.length == 1
-
-          @preferences.set_default_keystore args.first
-          OutputFactory.create(options).render_preferences @preferences
+          name = args.first
+          ctl = KeystoreController.new(options)
+          ctl.set_default(name)
+          ctl.display
         end
       end
 
@@ -129,10 +111,9 @@ module Leeloo
         c.action do |args, options|
           abort "name is missing" unless args.length == 1
           name = args.first
-
-          keystore = @preferences.keystore(options.keystore)
-          secret = keystore.secret_from_name(name)
-          OutputFactory.create(options).render_secret secret
+          ctl = SecretController.new(options)
+          ctl.read(name)
+          ctl.display
         end
       end
 
@@ -147,22 +128,9 @@ module Leeloo
         c.action do |args, options|
           abort "name is missing" unless args.length == 1
           name = args.first
-          phrase = nil
-
-          phrase = STDIN.read if options.stdin
-          phrase = SecureRandom.base64(32).truncate(options.generate.to_i) if options.generate
-
-          unless phrase
-            phrase  = password "secret"
-            confirm = password "confirm it"
-            abort "not the same secret" unless phrase == confirm
-          end
-
-          keystore = @preferences.keystore(options.keystore)
-          secret = keystore.secret_from_name(name)
-          secret.write(phrase)
-
-          OutputFactory.create(options).render_secret secret
+          ctl = SecretController.new(options)
+          ctl.write(name)
+          ctl.display
         end
       end
 
@@ -172,9 +140,9 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
-          keystore = @preferences.keystore(options.keystore)
-          text = STDIN.read
-          OutputFactory.create(options).render_translate keystore, text
+          ctl = TranslateController.new(options)
+          ctl.translate
+          ctl.display
         end
       end
 
@@ -186,10 +154,9 @@ module Leeloo
         c.action do |args, options|
           abort "name is missing" unless args.length == 1
           name = args.first
-
-          keystore = @preferences.keystore(options.keystore)
-          secret = keystore.secret_from_name(name)
-          secret.erase
+          ctl = SecretController.new(options)
+          ctl.remove(name)
+          ctl.display
         end
       end
 
@@ -199,8 +166,9 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
-          keystore = @preferences.keystore(options.keystore)
-          keystore.sync
+          ctl = KeystoreController.new(options)
+          ctl.sync
+          ctl.display
         end
       end
 
@@ -210,8 +178,48 @@ module Leeloo
         c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
-          keystore = @preferences.keystore(options.keystore)
-          keystore.init
+          ctl = KeystoreController.new(options)
+          ctl.init
+          ctl.display
+        end
+      end
+
+      command :share do |c|
+        c.syntax      = 'leeloo share <name>'
+        c.description = "share a secret with someone"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          abort "name is missing" unless args.length == 1
+          name = args.first
+          ctl = ShareController.new(options)
+          ctl.token(name)
+          ctl.display
+          ctl.start_server
+        end
+      end
+
+      command :token do |c|
+        c.syntax      = 'leeloo token <name>'
+        c.description = "generate an access token for a given secret"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          abort "name is missing" unless args.length == 1
+          name = args.first
+          ctl = ShareController.new(options)
+          ctl.token(name)
+          ctl.display
+        end
+      end
+
+      command :server do |c|
+        c.syntax      = 'leeloo server'
+        c.description = "start a server access token"
+
+        c.action do |args, options|
+          ctl = ShareController.new(options)
+          ctl.start_server
         end
       end
 
