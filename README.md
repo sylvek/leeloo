@@ -21,6 +21,7 @@ $> sudo gem install leeloo
 ```
 $> brew tap sylvek/leeloo-brew
 $> brew install leeloo
+$> echo "pinentry-program /usr/local/bin/pinentry-mac" > ~/.gnupg/gpg-agent.conf
 $> gem install leeloo
 ```
 
