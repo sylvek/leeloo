@@ -1,0 +1,25 @@
+version: 2.1
+orbs:
+  ruby: circleci/ruby@1.1.1
+
+jobs:
+  build:
+    docker:
+      - image: 'cimg/base:stable'
+
+    working_directory: ~/repo/leeloo
+    steps:
+      - checkout:
+          path: ~/repo
+      - ruby/install:
+          version: '2.7'
+      - run: "gem install -f bundler:$(cat Gemfile.lock | tail -1 | tr -d ' ')"
+      - ruby/install-deps:
+          bundler-version: 2.1.2
+      #- ruby/rspec-test
+      - run: gem build
+      - run:
+          command: |
+            echo $GEM_CREDENTIALS > ~/.gem/credentials
+            chmod 0600 ~/.gem/credentials
+      - run: "gem push $(ls *.gem | tail -1)"
