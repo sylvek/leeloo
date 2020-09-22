@@ -13,6 +13,7 @@ jobs:
           path: ~/repo
       - ruby/install:
           version: '2.7'
+      - run: bundle --version
       - ruby/install-deps
       - ruby/rspec-test
       - run: gem build
