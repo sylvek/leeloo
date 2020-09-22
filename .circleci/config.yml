@@ -14,6 +14,7 @@ jobs:
       - ruby/install:
           version: '2.7'
       - run: bundle --version
-      - ruby/install-deps
+      - ruby/install-deps:
+          bundler-version: 2.1.2
       - ruby/rspec-test
       - run: gem build
