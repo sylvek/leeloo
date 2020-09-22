@@ -6,8 +6,11 @@ jobs:
   build:
     docker:
       - image: 'cimg/base:stable'
+
+    working_directory: ~/repo/leeloo
     steps:
-      - checkout
+      - checkout:
+          path: ~/repo
       - ruby/install:
           version: '2.7'
       - ruby/install-deps
