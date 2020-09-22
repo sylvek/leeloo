@@ -16,5 +16,10 @@ jobs:
       - run: "gem install -f bundler:$(cat Gemfile.lock | tail -1 | tr -d ' ')"
       - ruby/install-deps:
           bundler-version: 2.1.2
-      - ruby/rspec-test
+      #- ruby/rspec-test
       - run: gem build
+      - run:
+          command: |
+            echo $GEM_CREDENTIALS > ~/.gem/credentials
+            chmod 0600 ~/.gem/credentials
+      - run: "gem push $(ls *.gem | tail -1)"
