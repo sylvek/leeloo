@@ -172,6 +172,17 @@ module Leeloo
         end
       end
 
+      command :export do |c|
+        c.syntax      = 'leeloo export'
+        c.description = "Export all secrets from a keystore"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          ctl = ExportController.new(options)
+          ctl.display
+        end
+      end
+
       command :init do |c|
         c.syntax      = 'leeloo init'
         c.description = "Initialize a keystore"

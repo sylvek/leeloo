@@ -37,8 +37,25 @@ module Leeloo
 		def search name
 			@secrets = @secrets.select { |secret| secret.name.downcase.include? name.downcase } || []
 		end
+		def list
+			@secrets
+		end
 		def display
 			@output.render_secrets @secrets
+		end
+	end
+
+	class ExportController < PrivateLocalFileSystemController
+		def initialize options
+			super options
+			@secrets = @preferences.keystore(@options.keystore).secrets
+		end
+		def display
+			@secrets.each do |secret|
+				@output.render_text(secret.name)
+				@output.render_secret(@keystore.secret_from_name(secret.name))
+				@output.render_text("------")
+			end
 		end
 	end
 
