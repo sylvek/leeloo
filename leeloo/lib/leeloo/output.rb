@@ -21,6 +21,9 @@ module Leeloo
         def render_text text
         end
 
+        def render_name_and_secret name, secret
+        end
+
         def render_footprint footprint
         end
 
@@ -44,6 +47,12 @@ module Leeloo
             rescue => exception
                 puts "#{secret.name} doesn't exist"
             end
+        end
+
+        def render_name_and_secret name, secret
+            self.render_text name
+            self.render_secret secret
+            self.render_text '------'
         end
 
         def render_text text

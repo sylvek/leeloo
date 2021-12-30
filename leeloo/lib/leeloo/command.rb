@@ -27,7 +27,6 @@ module Leeloo
 
       command :wrapper do |c|
         c.action do |args, options|
-          SecretsController.new(options).display
           unless args == []
             name = args.first
             ctl = SecretController.new(options)
@@ -182,6 +181,17 @@ module Leeloo
         c.action do |args, options|
           ctl = KeystoreController.new(options)
           ctl.sync
+          ctl.display
+        end
+      end
+
+      command :export do |c|
+        c.syntax      = 'leeloo export'
+        c.description = "Export all secrets from a keystore"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          ctl = ExportController.new(options)
           ctl.display
         end
       end
