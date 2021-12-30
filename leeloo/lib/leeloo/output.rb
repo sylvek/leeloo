@@ -69,8 +69,8 @@ module Leeloo
         end
 
         def render_secrets secrets
-            hash = {:secrets => []}
-            secrets.sort_by(&:name).each { |secret| sort(hash[:secrets], secret.name) }
+            hash = {'Password Store' => []}
+            secrets.sort_by(&:name).each { |secret| sort(hash['Password Store'], secret.name) }
             puts TTY::Tree.new(hash).render
         end
 

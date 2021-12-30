@@ -23,7 +23,21 @@ module Leeloo
       program :help, 'GitHub', 'https://github.com/sylvek'
       program :help_formatter, :compact
 
-      default_command :"list"
+      default_command :wrapper
+
+      command :wrapper do |c|
+        c.action do |args, options|
+          SecretsController.new(options).display
+          unless args == []
+            name = args.first
+            ctl = SecretController.new(options)
+            ctl.read(name)
+            ctl.display
+          else
+            SecretsController.new(options).display
+          end
+        end
+      end
 
       command :list do |c|
         c.syntax      = 'leeloo list [options]'
