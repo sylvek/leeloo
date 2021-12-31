@@ -21,6 +21,12 @@ module Leeloo
         def render_text text
         end
 
+        def render_name_and_secret name, secret
+        end
+
+        def render_keys keys
+        end
+
         def render_footprint footprint
         end
 
@@ -46,8 +52,18 @@ module Leeloo
             end
         end
 
+        def render_name_and_secret name, secret
+            self.render_text name
+            self.render_secret secret
+            self.render_text '------'
+        end
+
         def render_text text
             puts text
+        end
+
+        def render_keys keys
+            self.render_text keys
         end
 
         def render_footprint footprint
@@ -69,9 +85,19 @@ module Leeloo
         end
 
         def render_secrets secrets
-            hash = {:secrets => []}
-            secrets.sort_by(&:name).each { |secret| sort(hash[:secrets], secret.name) }
+            hash = {'Password Store' => []}
+            secrets.sort_by(&:name).each { |secret| sort(hash['Password Store'], secret.name) }
             puts TTY::Tree.new(hash).render
+        end
+
+        def render_keys keys
+            rows = []
+            keys.each do |key|
+                splitted = key.split('::')
+                is_present = '*' if splitted[1] == 'true'
+                rows << [splitted[0], is_present]
+            end
+            puts TTY::Table.new(header: ['Email', 'Selected'], rows: rows).render(:ascii)
         end
 
         def sort array, element

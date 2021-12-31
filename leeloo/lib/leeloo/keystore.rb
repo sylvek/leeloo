@@ -79,6 +79,10 @@ module Leeloo
       find_secrets "#{@path}/secrets"
     end
 
+    def keys
+      []
+    end
+
     def find_secrets path
       elements = []
       Dir.glob("#{path}/**") do |element|
@@ -121,7 +125,10 @@ module Leeloo
     def initialize name, path
       super name, path
       FileUtils.mkdir_p "#{@path}/keys"
+      populate_recipients
+    end
 
+    def populate_recipients
       @recipients = []
       Dir.glob("#{path}/keys/*") { |key| @recipients << File.basename(key) }
       @recipients.each { |key| GPGME::Key.import(File.open("#{path}/keys/#{key}")) }
@@ -129,7 +136,30 @@ module Leeloo
 
     def init
       super
-      GPGME::Key.find(:public, nil, ).each { |key| key.export(:output => File.open("#{path}/keys/#{key.uids.first.email}", "w+")) }
+      File.write("#{@path}/keys/do_not_remove_me", "do not remove me")
+    end
+
+    def keys
+      available = GPGME::Key.find(:public, nil, ).map { |key| key.email }
+      actual = Dir.glob("#{@path}/keys/**").map { |path| path.split('/').last }
+      available.map { |email| actual.include?(email) ? "#{email}::true" : "#{email}::false" }
+    end
+
+    def add_key email
+      paths = []
+      GPGME::Key.find(:public, email).each do |key| 
+        key.export(:output => File.open("#{path}/keys/#{key.uids.first.email}", "w+"))
+        paths << "#{path}/keys/#{key.uids.first.email}"
+      end
+      return paths
+    end
+
+    def remove_key email
+      if File.exist?("#{path}/keys/#{email}")
+        File.delete("#{path}/keys/#{email}")
+        return "#{path}/keys/#{email}"
+      end
+      return nil
     end
 
     def secret_of path
@@ -170,6 +200,25 @@ module Leeloo
 
     def secret_from_name element
       secret_of @keystore.secret_from_name(element)
+    end
+
+    def keys
+      @keystore.keys
+    end
+
+    def add_key email
+      @keystore.add_key(email).each do |path|
+        @git.add path
+        @git.commit "#{email} added"
+      end
+    end
+
+    def remove_key email
+      deleted = @keystore.remove_key email
+      if deleted
+        @git.add deleted
+        @git.commit "#{email} removed"
+      end
     end
 
     def secrets

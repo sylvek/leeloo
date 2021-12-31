@@ -23,11 +23,24 @@ module Leeloo
       program :help, 'GitHub', 'https://github.com/sylvek'
       program :help_formatter, :compact
 
-      default_command :"list"
+      default_command :wrapper
+
+      command :wrapper do |c|
+        c.action do |args, options|
+          unless args == []
+            name = args.first
+            ctl = SecretController.new(options)
+            ctl.read(name)
+            ctl.display
+          else
+            SecretsController.new(options).display
+          end
+        end
+      end
 
       command :list do |c|
         c.syntax      = 'leeloo list [options]'
-        c.description = "Display secrets list of keystore"
+        c.description = "Display secrets list of stored on a keystore"
         c.option '--ascii', nil, 'display secrets without unicode tree'
         c.option '--keystore STRING', String, 'a selected keystore'
 
@@ -101,6 +114,58 @@ module Leeloo
         end
       end
 
+      command :key do |c|
+        c.syntax      = 'leeloo keys'
+        c.description = "list keys from this keystore"
+        c.option '--ascii', nil, 'display secrets without unicode tree'
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          ctl = KeysController.new(options)
+          ctl.display
+        end
+      end
+
+      command "key sync" do |c|
+        c.syntax      = 'leeloo keys sync'
+        c.description = "synchronize secrets with keys"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          ctl = KeysController.new(options)
+          ctl.sync
+          ctl.display
+        end
+      end
+
+      command "key add" do |c|
+        c.syntax      = 'leeloo key add <email>'
+        c.description = "add a dedicated key"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          abort "email is missing" unless args.length == 1
+          email = args.first
+          ctl = KeysController.new(options)
+          ctl.add_key(email)
+          ctl.display
+        end
+      end
+
+      command "key remove" do |c|
+        c.syntax      = 'leeloo key remove <email>'
+        c.description = "remove a dedicated key"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          abort "email is missing" unless args.length == 1
+          email = args.first
+          ctl = KeysController.new(options)
+          ctl.remove_key(email)
+          ctl.display
+        end
+      end
+
       command :read do |c|
         c.syntax      = 'leeloo read <name>'
         c.description = "Display a secret from a keystore"
@@ -160,7 +225,7 @@ module Leeloo
         end
       end
 
-      command :sync do |c|
+      command "keystore sync" do |c|
         c.syntax      = 'leeloo sync'
         c.description = "Synchronize a keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
@@ -172,7 +237,18 @@ module Leeloo
         end
       end
 
-      command :init do |c|
+      command "keystore export" do |c|
+        c.syntax      = 'leeloo export'
+        c.description = "Export all secrets from a keystore"
+        c.option '--keystore STRING', String, 'a selected keystore'
+
+        c.action do |args, options|
+          ctl = ExportController.new(options)
+          ctl.display
+        end
+      end
+
+      command "keystore init" do |c|
         c.syntax      = 'leeloo init'
         c.description = "Initialize a keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
