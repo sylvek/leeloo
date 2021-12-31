@@ -73,6 +73,29 @@ $> leeloo keystore default test
 |test   |/Users/sylvek/test            |*      |
 +-------+------------------------------+-------+
 
+$> leeloo key
+# will display available keys and which are set to this keystore
++-------------------------+--------+
+|Email                    |Selected|
++-------------------------+--------+
+|user1@email.com          |        |
+|user2@email.com          |        |
++-------------------------+--------+
+
+(if nothing is displayed, have a look on your gpg's configuration)
+
+$> leeloo key add user1@email.com
+# will add user1@email.com to this keystore
++-------------------------+--------+
+|Email                    |Selected|
++-------------------------+--------+
+|user1@email.com          |*       |
+|user2@email.com          |        |
++-------------------------+--------+
+
+$> leeloo key sync
+# will update all secrets to be readable by selected users
+
 $> leeloo write my_secret
 # will add a secret
 

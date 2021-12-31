@@ -32,7 +32,7 @@ module Leeloo
 	class SecretsController < PrivateLocalFileSystemController
 		def initialize options
 			super options
-			@secrets = @preferences.keystore(@options.keystore).secrets
+			@secrets = @keystore.secrets
 		end
 		def search name
 			@secrets = @secrets.select { |secret| secret.name.downcase.include? name.downcase } || []
@@ -46,14 +46,29 @@ module Leeloo
 	end
 
 	class ExportController < PrivateLocalFileSystemController
-		def initialize options
-			super options
-			@secrets = @preferences.keystore(@options.keystore).secrets
-		end
 		def display
-			@secrets.each do |secret|
+			@keystore.secrets.each do |secret|
 				@output.render_name_and_secret(secret.name, @keystore.secret_from_name(secret.name))
 			end
+		end
+	end
+
+	class KeysController < PrivateLocalFileSystemController
+		def add_key email
+			@keystore.add_key(email)
+		end
+		def remove_key email
+			@keystore.remove_key(email)
+		end
+		def sync
+			@keystore.secrets.each do |secret|
+				phrase = @keystore.secret_from_name(secret.name).read
+				@keystore.secret_from_name(secret.name).write(phrase)
+			end
+		end
+		def display
+			@keys = @keystore.keys
+			@output.render_keys @keys
 		end
 	end
 

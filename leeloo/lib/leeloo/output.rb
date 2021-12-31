@@ -24,6 +24,9 @@ module Leeloo
         def render_name_and_secret name, secret
         end
 
+        def render_keys keys
+        end
+
         def render_footprint footprint
         end
 
@@ -59,6 +62,10 @@ module Leeloo
             puts text
         end
 
+        def render_keys keys
+            self.render_text keys
+        end
+
         def render_footprint footprint
             puts "token:"
             puts Base64.strict_encode64 footprint.to_json
@@ -81,6 +88,16 @@ module Leeloo
             hash = {'Password Store' => []}
             secrets.sort_by(&:name).each { |secret| sort(hash['Password Store'], secret.name) }
             puts TTY::Tree.new(hash).render
+        end
+
+        def render_keys keys
+            rows = []
+            keys.each do |key|
+                splitted = key.split('::')
+                is_present = '*' if splitted[1] == 'true'
+                rows << [splitted[0], is_present]
+            end
+            puts TTY::Table.new(header: ['Email', 'Selected'], rows: rows).render(:ascii)
         end
 
         def sort array, element
