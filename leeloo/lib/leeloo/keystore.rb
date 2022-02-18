@@ -72,7 +72,7 @@ module Leeloo
     def initialize name, path
       super name
       @path = path
-      FileUtils.touch "#{@path}/.gpg-id"
+      File.write("#{@path}/.gpg-id", 'empty')
       FileUtils.mkdir_p "#{@path}/secrets"
     end
 
