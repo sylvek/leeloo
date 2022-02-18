@@ -83,8 +83,8 @@ module Leeloo
 			phrase = SecureRandom.base64(32).truncate(@options.generate.to_i) if @options.generate
 
 			unless phrase
-				phrase  = password "secret"
-				confirm = password "confirm it"
+				phrase  = password "Enter password for #{name}"
+				confirm = password "Confirm it"
 				abort "not the same secret" unless phrase == confirm
 			end
 

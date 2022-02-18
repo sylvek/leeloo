@@ -43,6 +43,11 @@ module Leeloo
         end
       end
 
+      command :init do |c|
+        c.syntax      = 'leeloo init'
+        c.description = "Just to be compatible with passwordstore.org"
+      end
+
       command :list do |c|
         c.syntax      = 'leeloo list [options]'
         c.description = "Display secrets list of stored on a keystore"
@@ -79,7 +84,7 @@ module Leeloo
         end
       end
 
-      command "keystore remove" do |c|
+      command :"keystore remove" do |c|
         c.syntax      = 'leeloo keystore remove <name>'
         c.description = "remove a keystore (path/to/keystore is not destroyed)"
 
@@ -92,7 +97,7 @@ module Leeloo
         end
       end
 
-      command "keystore add" do |c|
+      command :"keystore add" do |c|
         c.syntax      = 'leeloo keystore add <name> <path/to/keystore>'
         c.description = "add a keystore"
 
@@ -106,7 +111,7 @@ module Leeloo
         end
       end
 
-      command "keystore default" do |c|
+      command :"keystore default" do |c|
         c.syntax      = 'leeloo keystore default name'
         c.description = "set the default keystore"
 
@@ -131,7 +136,7 @@ module Leeloo
         end
       end
 
-      command "key sync" do |c|
+      command :"key sync" do |c|
         c.syntax      = 'leeloo keys sync'
         c.description = "synchronize secrets with keys"
         c.option '--keystore STRING', String, 'a selected keystore'
@@ -143,7 +148,7 @@ module Leeloo
         end
       end
 
-      command "key add" do |c|
+      command :"key add" do |c|
         c.syntax      = 'leeloo key add <email>'
         c.description = "add a dedicated key"
         c.option '--keystore STRING', String, 'a selected keystore'
@@ -157,7 +162,7 @@ module Leeloo
         end
       end
 
-      command "key remove" do |c|
+      command :"key remove" do |c|
         c.syntax      = 'leeloo key remove <email>'
         c.description = "remove a dedicated key"
         c.option '--keystore STRING', String, 'a selected keystore'
@@ -202,6 +207,23 @@ module Leeloo
           ctl.display
         end
       end
+      alias_command :insert, :write
+
+      command :generate do |c|
+        c.syntax      = 'leeloo generate <name> <number of randomized characters>'
+        c.description = "Generate a secret from a keystore"
+        c.option '--keystore STRING', String, 'a selected keystore'
+        c.option '--clipboard', nil, 'copy to clipboard'
+
+        c.action do |args, options|
+          abort "name or number are missing" unless args.length == 2
+          name = args.first
+          options.__hash__[:generate] = args.last.to_i
+          ctl = SecretController.new(options)
+          ctl.write(name)
+          ctl.display
+        end
+      end
 
       command :translate do |c|
         c.syntax      = 'leeloo translate'
@@ -229,8 +251,9 @@ module Leeloo
           puts "done."
         end
       end
+      alias_command :rm, :remove
 
-      command "keystore sync" do |c|
+      command :"keystore sync" do |c|
         c.syntax      = 'leeloo sync'
         c.description = "Synchronize a keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
@@ -242,7 +265,7 @@ module Leeloo
         end
       end
 
-      command "keystore export" do |c|
+      command :"keystore export" do |c|
         c.syntax      = 'leeloo export'
         c.description = "Export all secrets from a keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
@@ -253,7 +276,7 @@ module Leeloo
         end
       end
 
-      command "keystore init" do |c|
+      command :"keystore init" do |c|
         c.syntax      = 'leeloo init'
         c.description = "Initialize a keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
