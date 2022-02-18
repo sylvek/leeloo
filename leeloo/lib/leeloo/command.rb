@@ -26,6 +26,11 @@ module Leeloo
       default_command :wrapper
 
       command :wrapper do |c|
+        c.syntax      = 'leeloo [options]'
+        c.description = "Display secrets"
+        c.option '--ascii', nil, 'display secrets without unicode tree'
+        c.option '--keystore STRING', String, 'a selected keystore'
+        c.option '--clipboard', nil, 'copy to clipboard'
         c.action do |args, options|
           unless args == []
             name = args.first
@@ -171,7 +176,6 @@ module Leeloo
         c.description = "Display a secret from a keystore"
         c.option '--keystore STRING', String, 'a selected keystore'
         c.option '--clipboard', nil, 'copy to clipboard'
-        c.option '--keystore STRING', String, 'a selected keystore'
 
         c.action do |args, options|
           abort "name is missing" unless args.length == 1
@@ -221,7 +225,8 @@ module Leeloo
           name = args.first
           ctl = SecretController.new(options)
           ctl.remove(name)
-          ctl.display
+          #ctl.display
+          puts "done."
         end
       end
 
