@@ -72,7 +72,7 @@ module Leeloo
     def initialize name, path
       super name
       @path = path
-      File.write("#{@path}/.gpg-id", 'empty')
+      File.write("#{@path}/.gpg-id", 'empty') unless File.exist? "#{@path}/.gpg-id"
       FileUtils.mkdir_p "#{@path}/secrets"
     end
 
