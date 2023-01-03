@@ -24,6 +24,8 @@ $> brew install leeloo
 # on Intel
 $> echo "pinentry-program /usr/local/bin/pinentry-mac" > ~/.gnupg/gpg-agent.conf
 # on Apple M1
+# ensure `/opt/homebrew/opt/ruby/bin` is set at the begining of your $PATH
+# ruby3 is mandatory
 $> echo "pinentry-program /opt/homebrew/bin/pinentry-mac" > ~/.gnupg/gpg-agent.conf
 $> gem install leeloo
 ```
